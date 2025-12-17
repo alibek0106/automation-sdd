@@ -1,0 +1,16 @@
+<testsuites id="" name="" tests="6" failures="0" skipped="0" errors="0" time="14.602362999999999">
+<testsuite name="web\TC10_ContactForm.spec.ts" timestamp="2025-12-17T11:18:13.718Z" hostname="chromium" tests="6" failures="0" skipped="0" time="43.985" errors="0">
+<testcase name="TC10: Contact Form Submission › Scenario: Successful form submission with file attachment" classname="web\TC10_ContactForm.spec.ts" time="9.419">
+</testcase>
+<testcase name="TC10: Contact Form Submission › Scenario: Verify mandatory field validation" classname="web\TC10_ContactForm.spec.ts" time="6.853">
+</testcase>
+<testcase name="TC10: Contact Form Submission › Scenario: Verify email format validation - No domain" classname="web\TC10_ContactForm.spec.ts" time="10.07">
+</testcase>
+<testcase name="TC10: Contact Form Submission › Scenario: Verify email format validation - Missing domain" classname="web\TC10_ContactForm.spec.ts" time="7.339">
+</testcase>
+<testcase name="TC10: Contact Form Submission › Scenario: Verify email format validation - Missing username" classname="web\TC10_ContactForm.spec.ts" time="5.777">
+</testcase>
+<testcase name="TC10: Contact Form Submission › Scenario: Verify email format validation - Missing domain name" classname="web\TC10_ContactForm.spec.ts" time="4.527">
+</testcase>
+</testsuite>
+</testsuites>
