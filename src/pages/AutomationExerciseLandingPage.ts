@@ -7,7 +7,7 @@ export class AutomationExerciseLandingPage extends BasePage {
 
     constructor(page: Page) {
         super(page, 'LandingPage');
-        this.body = this.resolveLocator('body', 'Body');
+        this.body = this.page.locator('body').describe('Body');
     }
 
     async navigate() {
@@ -15,7 +15,7 @@ export class AutomationExerciseLandingPage extends BasePage {
     }
 
     async verifyPageOpened() {
-        await expect(this.page).toHaveTitle(/Automation Exercise/);
-        await expect(this.body).toBeVisible();
+        await expect(this.page, 'Landing page should be opened').toHaveTitle(Routes.TITLE);
+        await expect(this.body, 'Page Body should be visible').toBeVisible();
     }
 }
