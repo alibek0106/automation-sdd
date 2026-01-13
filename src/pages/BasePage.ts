@@ -33,10 +33,4 @@ export class BasePage {
         await this.page.waitForURL(url, { timeout: TIMEOUTS.DEFAULT });
     }
 
-    /**
-     * Generic pause helper for debugging (use sparingly)
-     */
-    async pause(ms: number) {
-        await this.page.waitForTimeout(ms);
-    }
 }

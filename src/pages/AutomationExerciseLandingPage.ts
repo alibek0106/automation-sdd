@@ -8,8 +8,7 @@ export class AutomationExerciseLandingPage extends BasePage {
     // Constants & Selectors
     // ===========================
     private readonly SELECTORS = {
-        SLIDER_CAROUSEL: '#slider-carousel',
-        IMG_LOGO: '.logo img'
+        SLIDER_CAROUSEL: '#slider-carousel'
     };
 
     // ===========================
@@ -21,7 +20,7 @@ export class AutomationExerciseLandingPage extends BasePage {
     constructor(page: Page) {
         super(page, 'LandingPage');
         this.slider = this.page.locator(this.SELECTORS.SLIDER_CAROUSEL).describe('Home Page Slider');
-        this.logo = this.page.locator(this.SELECTORS.IMG_LOGO).describe('Site Logo');
+        this.logo = this.page.getByRole('img', { name: 'Website for automation practice' }).describe('Site Logo');
     }
 
     // ===========================

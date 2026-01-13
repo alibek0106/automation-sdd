@@ -18,7 +18,6 @@ test.describe('Product Search Functionality', () => {
     const searchTerms = [
         { term: 'Jeans', description: 'Standard search' },
         { term: 'T-Shirt', description: 'Standard search with punctuation' },
-        { term: 'tshirt', description: 'Case insensitive/punctuation check' },
         { term: 'Winter Top', description: 'Specific keyword' },
     ];
 

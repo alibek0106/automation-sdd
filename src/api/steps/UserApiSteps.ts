@@ -1,9 +1,11 @@
 import { User, AccountDetails, AddressInfo } from '../../utils/DataFactory';
 import { AutomationExerciseApi } from '../AutomationExerciseApi';
+import { step } from '../../utils/Decorators';
 
 export class UserApiSteps {
     constructor(private automationExerciseApi: AutomationExerciseApi) { }
 
+    @step('Register new user via API')
     async registerUser(user: { name: string, email: string }, account: AccountDetails, address: AddressInfo) {
         // Map deeply nested objects to User type for API
         const userData: User = {
@@ -29,10 +31,12 @@ export class UserApiSteps {
         await this.automationExerciseApi.registerUser(userData);
     }
 
+    @step('Delete user via API')
     async deleteUser(email: string, password: string) {
         await this.automationExerciseApi.deleteUser(email, password);
     }
 
+    @step('Get user details via API')
     async getUserDetails(email: string): Promise<any> {
         return await this.automationExerciseApi.getUserDetails(email);
     }

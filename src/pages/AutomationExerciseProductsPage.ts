@@ -18,14 +18,13 @@ export class AutomationExerciseProductsPage extends BasePage {
         CATEGORY_PANEL: '#accordian',
 
         // Product Card Elements
-        PRODUCT_CARD: '.product-image-wrapper',
+        // Product Card Elements
+        PRODUCT_CARD: '.product-image-wrapper', // Structural wrapper, keeping as class for now
         PRODUCT_NAME: '.productinfo p',
         PRODUCT_PRICE: '.productinfo h2',
         PRODUCT_IMAGE: 'img',
-        BTN_ADD_TO_CART: '.add-to-cart',
-        GET_BTN_ADD_TO_CART_OVERLAY: '.add-to-cart-overlay', // "Overlay" buttons usually for hover
-        LINK_VIEW_PRODUCT: '.choose a',
-        TEXT_LINK_VIEW_PRODUCT: 'a:has-text("View Product")', // Alternative if class is unstable
+        BTN_ADD_TO_CART: 'Add to cart', // For Use with getByRole('button', { name: ... }) OR text matching
+        LINK_VIEW_PRODUCT: 'View Product', // For Use with getByText(...)
 
         // Search
         INPUT_SEARCH: '#search_product',
@@ -101,16 +100,8 @@ export class AutomationExerciseProductsPage extends BasePage {
 
     async searchProduct(term: string) {
         await this.searchInput.fill(term);
-
-        // Retry mechanism: Click search and wait for URL to update (indicating navigation).
-        // A robust action should verify the event occurred (URL changed), NOT the specific business result (header visible).
-        await expect(async () => {
-            await this.submitSearchButton.click();
-            await expect(this.page).toHaveURL(/\/products\?search=/, { timeout: this.SHORT_POLLING_TIMEOUT });
-        }).toPass({
-            timeout: TIMEOUTS.DEFAULT,
-            intervals: [this.RETRY_INTERVAL]
-        });
+        await this.submitSearchButton.click();
+        await expect(this.page).toHaveURL(/\/products\?search=/, { timeout: TIMEOUTS.DEFAULT });
     }
 
     async verifySearchedProductsHeader() {
@@ -131,15 +122,10 @@ export class AutomationExerciseProductsPage extends BasePage {
         const categoryLink = this.categoryPanel.locator(`//a[@href="#${category}"]`);
         const categoryBody = this.categoryPanel.locator(`#${category}`);
 
-        await expect(async () => {
+        if (!await categoryBody.isVisible()) {
             await categoryLink.click();
-            // Wait for the panel body (containing subcategories) to become visible
-            // The site uses standard Bootstrap collapse, usually adding class 'in' or just making it visible.
-            await expect(categoryBody).toBeVisible({ timeout: 2000 });
-        }).toPass({
-            timeout: TIMEOUTS.DEFAULT,
-            intervals: [1000]
-        });
+            await expect(categoryBody).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
+        }
     }
 
     async clickSubCategory(mainCategory: string, subCategory: string) {
@@ -156,22 +142,22 @@ export class AutomationExerciseProductsPage extends BasePage {
     async viewProductDetails(index: number) {
         // "View Product" buttons are a list.
         // It's safer to find the card at index, then the button inside it.
-        await this.getProductCard(index).locator(this.SELECTORS.LINK_VIEW_PRODUCT).click();
+        await this.getProductCard(index).getByRole('link', { name: this.SELECTORS.LINK_VIEW_PRODUCT }).click();
     }
 
     async viewProductDetailsByName(productName: string) {
         const productCard = this.getProductCardByName(productName);
-        await productCard.locator(this.SELECTORS.LINK_VIEW_PRODUCT).click();
+        await productCard.getByRole('link', { name: this.SELECTORS.LINK_VIEW_PRODUCT }).click();
     }
 
     async addProductToCart(index: number) {
-        await this.getProductCard(index).locator(this.SELECTORS.BTN_ADD_TO_CART).first().click();
+        await this.getProductCard(index).getByText(this.SELECTORS.BTN_ADD_TO_CART).first().click();
     }
 
     async addProductToCartByName(productName: string) {
         const product = this.getProductCardByName(productName);
         await product.hover();
-        await product.locator(this.SELECTORS.BTN_ADD_TO_CART).first().click();
+        await product.getByText(this.SELECTORS.BTN_ADD_TO_CART).first().click();
     }
 
     async clickContinueShopping() {
@@ -204,7 +190,7 @@ export class AutomationExerciseProductsPage extends BasePage {
         const card = this.getProductCard(index);
 
         await expect(card.locator(this.SELECTORS.PRODUCT_IMAGE), 'Product Image should be visible').toBeVisible();
-        await expect(card.locator(this.SELECTORS.TEXT_LINK_VIEW_PRODUCT), 'View Product Link should be visible').toBeVisible();
+        await expect(card.getByRole('link', { name: this.SELECTORS.LINK_VIEW_PRODUCT }), 'View Product Link should be visible').toBeVisible();
     }
 
     async getProductNames(): Promise<string[]> {
@@ -273,12 +259,7 @@ export class AutomationExerciseProductsPage extends BasePage {
      * Handles cases where ads intercept clicks or navigation doesn't trigger immediately.
      */
     private async clickWithNavigationRetry(element: Locator, expectedUrlPattern: RegExp) {
-        await expect(async () => {
-            await element.click();
-            await expect(this.page).toHaveURL(expectedUrlPattern, { timeout: this.SHORT_POLLING_TIMEOUT });
-        }).toPass({
-            timeout: TIMEOUTS.NAVIGATION,
-            intervals: [this.RETRY_INTERVAL],
-        });
+        await element.click();
+        await expect(this.page).toHaveURL(expectedUrlPattern, { timeout: TIMEOUTS.NAVIGATION });
     }
 }

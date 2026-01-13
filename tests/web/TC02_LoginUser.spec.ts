@@ -1,6 +1,5 @@
 import { test } from '../../src/fixtures';
-import * as fs from 'fs';
-import * as path from 'path';
+import { DataFactory } from '../../src/utils/DataFactory';
 
 /**
  * TC02: User Login
@@ -10,18 +9,29 @@ import * as path from 'path';
  */
 
 test.describe('User Authentication', () => {
+    let user = DataFactory.generateUser();
+
+    test.beforeEach(async ({ userApiSteps }) => {
+        // Create a unique user for this test via API
+        // We need full user details for registration, even if we only need email/pass for login
+        const account = DataFactory.generateAccountDetails();
+        const address = DataFactory.generateAddressInfo();
+
+        // Update user password to match account password as that's what's used for login
+        user.password = account.password;
+
+        await userApiSteps.registerUser(user, account, address);
+    });
+
+    test.afterEach(async ({ userApiSteps }) => {
+        await userApiSteps.deleteUser(user.email, user.password);
+    });
+
     test('TC02: Login User with correct email and password', async ({
         automationExerciseLandingSteps,
         automationExerciseNavigationSteps,
         automationExerciseLoginSteps,
     }) => {
-        // Arrange: Read test data from user-data.json
-        const userDataPath = path.resolve('tests/testData/user-data.json');
-        if (!fs.existsSync(userDataPath)) {
-            throw new Error(`user-data.json not found at ${userDataPath}. Please run TC01 first to generate a user.`);
-        }
-        const user = JSON.parse(fs.readFileSync(userDataPath, 'utf8'));
-
         // --- TEST FLOW ---
         // 1. Launch browser and Navigate to url 'http://automationexercise.com'
         await automationExerciseLandingSteps.navigateToHomepage();
@@ -41,9 +51,5 @@ test.describe('User Authentication', () => {
 
         // 7. Verify that 'Logged in as username' is visible
         await automationExerciseNavigationSteps.verifyUserLoggedIn(user.name);
-
-        // 8. Delete Account (Optional cleanup)
-        // await automationExerciseNavigationSteps.clickDeleteAccount();
-        // await automationExerciseNavigationSteps.verifyAccountDeleted();
     });
 });

@@ -1,7 +1,5 @@
 import { test } from '../../src/fixtures';
 import { DataFactory } from '../../src/utils/DataFactory';
-import * as fs from 'fs';
-import * as path from 'path';
 
 /**
  * TC01: User Registration
@@ -69,8 +67,5 @@ test.describe('User Registration', () => {
         // await automationExerciseNavigationSteps.clickDeleteAccount(); 
         // await automationExerciseNavigationSteps.verifyAccountDeleted();
 
-        // Save user data for TC02
-        const userDataPath = path.resolve('tests/testData/user-data.json');
-        fs.writeFileSync(userDataPath, JSON.stringify(user, null, 2));
     });
 });

@@ -10,6 +10,17 @@ export const test = base.extend<TestFixtures>({
     ...pagesFixture,
     ...stepsFixture,
     ...apiFixture,
+    page: async ({ page }, use) => {
+        // Global Ad Blocking
+        await page.route('**/*google_vignette*', (route: any) => route.abort());
+        await page.route('**/adsbygoogle.js', (route: any) => route.abort());
+        await page.route('**/*googlesyndication.com/**', (route: any) => route.abort());
+        await page.route('**/*doubleclick.net/**', (route: any) => route.abort());
+        await page.route('**/*amazon-adsystem.com/**', (route: any) => route.abort());
+        await page.route('**/*gpt.js', (route: any) => route.abort());
+
+        await use(page);
+    },
 });
 
 export const expect = baseExpect.extend(customMatchers);
