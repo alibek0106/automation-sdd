@@ -2,7 +2,7 @@ import { Page, expect } from '@playwright/test';
 import { AutomationExercisePaymentPage } from '../pages/AutomationExercisePaymentPage';
 import { AutomationExerciseOrderConfirmationPage } from '../pages/AutomationExerciseOrderConfirmationPage';
 import { step } from '../utils/Decorators';
-import { PaymentDetails } from '../utils/DataFactory';
+import { PaymentDetails, DataFactory } from '../utils/DataFactory';
 
 export class AutomationExercisePaymentSteps {
     constructor(
@@ -46,7 +46,6 @@ export class AutomationExercisePaymentSteps {
     @step('Fill payment details and confirm order')
     async fillPaymentDetailsAndConfirm(): Promise<void> {
         // Uses constants for default payment flow
-        const { DataFactory } = require('../utils/DataFactory');
         const paymentDetails = DataFactory.generatePaymentDetails();
         await this.enterPaymentDetails(paymentDetails);
         await this.paymentPage.clickPayAndConfirm();

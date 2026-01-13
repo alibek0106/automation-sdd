@@ -3,6 +3,25 @@ import { BasePage } from './BasePage';
 import { Routes } from '../constants/Routes';
 
 export class AutomationExerciseContactUsPage extends BasePage {
+
+    // ===========================
+    // Constants & Selectors
+    // ===========================
+    private readonly SELECTORS = {
+        HEADING: 'h2.title:has-text("Get In Touch")',
+        INPUT_NAME: '[data-qa="name"]',
+        INPUT_EMAIL: '[data-qa="email"]',
+        INPUT_SUBJECT: '[data-qa="subject"]',
+        INPUT_MESSAGE: '[data-qa="message"]',
+        INPUT_FILE_UPLOAD: 'input[name="upload_file"]',
+        BTN_SUBMIT: '[data-qa="submit-button"]',
+        MSG_SUCCESS: '.status.alert-success',
+        BTN_HOME: '.btn-success' // Still using specific class, but isolated here. If verification fails, we can refine to '.btn-success >> text=Home'
+    };
+
+    // ===========================
+    // Locators
+    // ===========================
     private readonly nameInput: Locator;
     private readonly emailInput: Locator;
     private readonly subjectInput: Locator;
@@ -15,19 +34,26 @@ export class AutomationExerciseContactUsPage extends BasePage {
 
     constructor(page: Page) {
         super(page, 'ContactUsPage');
-        this.heading = this.page.locator('h2.title:has-text("Get In Touch")').describe('Contact Us Heading');
-        this.nameInput = this.page.locator('[data-qa="name"]').describe('Contact Name Input');
-        this.emailInput = this.page.locator('[data-qa="email"]').describe('Contact Email Input');
-        this.subjectInput = this.page.locator('[data-qa="subject"]').describe('Contact Subject Input');
-        this.messageInput = this.page.locator('[data-qa="message"]').describe('Contact Message Input');
-        this.uploadFileInput = this.page.locator('input[name="upload_file"]').describe('Upload File Input');
-        this.submitButton = this.page.locator('[data-qa="submit-button"]').describe('Submit Button');
-        this.successMessage = this.page.locator('.status.alert-success').describe('Success Message');
-        this.homeButton = this.page.locator('.btn-success').describe('Home Button'); // Assuming class .btn-success or generic locator
+
+        this.heading = this.page.locator(this.SELECTORS.HEADING).describe('Contact Us Heading');
+        this.nameInput = this.page.locator(this.SELECTORS.INPUT_NAME).describe('Contact Name Input');
+        this.emailInput = this.page.locator(this.SELECTORS.INPUT_EMAIL).describe('Contact Email Input');
+        this.subjectInput = this.page.locator(this.SELECTORS.INPUT_SUBJECT).describe('Contact Subject Input');
+        this.messageInput = this.page.locator(this.SELECTORS.INPUT_MESSAGE).describe('Contact Message Input');
+        this.uploadFileInput = this.page.locator(this.SELECTORS.INPUT_FILE_UPLOAD).describe('Upload File Input');
+        this.submitButton = this.page.locator(this.SELECTORS.BTN_SUBMIT).describe('Submit Button');
+        this.successMessage = this.page.locator(this.SELECTORS.MSG_SUCCESS).describe('Success Message');
+
+        // Refined locator to ensure we click the actual "Home" button if multiple success buttons appear
+        this.homeButton = this.page.locator(this.SELECTORS.BTN_HOME).filter({ hasText: 'Home' }).describe('Home Button');
     }
 
+    // ===========================
+    // Actions
+    // ===========================
+
     async navigate() {
-        await this.page.goto(Routes.CONTACT_US);
+        await this.navigateTo(Routes.CONTACT_US);
     }
 
     async verifyPageOpened() {
@@ -42,18 +68,11 @@ export class AutomationExerciseContactUsPage extends BasePage {
     }
 
     async uploadFile(filePath: string) {
-        // Playwright handles file input
         await this.uploadFileInput.setInputFiles(filePath);
     }
 
     async submitForm() {
-        // AutomationExercise shows an alert confirm dialog on submit?
-        // Usually: page.on('dialog', dialog => dialog.accept());
-        // We should handle this listener in the spec or here safely.
-        // Let's attach listener once if needed, or assume no alert.
-        // Checking behavior: clicking submit usually triggers simple POST.
-        // BUT some forms use window.confirm. AutomationExercise often does for Delete Account, not sure for Contact.
-        // Safe bet: add listener before click.
+        // Handle potential confirmation dialog
         this.page.once('dialog', async dialog => {
             await dialog.accept();
         });
@@ -70,6 +89,7 @@ export class AutomationExerciseContactUsPage extends BasePage {
     }
 
     async verifyStillOnPageAfterValidation(): Promise<void> {
-        await expect(this.page, 'Should still be on Contact Us page').toHaveURL(Routes.BASE_URL + Routes.CONTACT_US);
+        // Using regex to match base URL + path to avoid issue with trailing slashes
+        await expect(this.page, 'Should still be on Contact Us page').toHaveURL(new RegExp(Routes.CONTACT_US));
     }
 }

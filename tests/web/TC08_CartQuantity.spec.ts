@@ -131,8 +131,8 @@ test.describe('TC08: Cart Quantity Update', () => {
         // Attempt to set quantity to 0
         await automationExerciseProductDetailSteps.addProductToCartWithQuantity('0');
 
-        // Navigate to cart to verify logic
-        await automationExerciseNavigationSteps.clickCart();
+        // Navigate to cart to verify logic (Using modal link as it's obscuring the top nav)
+        await automationExerciseProductDetailSteps.clickViewCart();
 
         // Verify cart is empty
         await automationExerciseCartSteps.verifyCartEmpty();

@@ -3,19 +3,37 @@ import { BasePage } from './BasePage';
 import { MESSAGES } from '../utils/Constants';
 
 export class AutomationExerciseOrderConfirmationPage extends BasePage {
+
+    // ===========================
+    // Constants & Selectors
+    // ===========================
+    private readonly SELECTORS = {
+        BTN_DOWNLOAD_INVOICE: 'a.check_out',
+        BTN_CONTINUE: '[data-qa="continue-button"]'
+    };
+
+    // ===========================
+    // Locators
+    // ===========================
     private readonly orderPlacedMessage: Locator;
     private readonly downloadInvoiceButton: Locator;
     private readonly continueButton: Locator;
 
     constructor(page: Page) {
         super(page, 'OrderConfirmationPage');
-        this.orderPlacedMessage = page.getByText(MESSAGES.ORDER_PLACED); // getByText is okay
-        this.downloadInvoiceButton = this.page.locator('a.check_out').describe('Download Invoice Button');
-        this.continueButton = this.page.locator('[data-qa="continue-button"]').describe('Continue Button');
+
+        // Using getByText with the constant message is robust and readable here
+        this.orderPlacedMessage = page.getByText(MESSAGES.ORDER_PLACED);
+
+        this.downloadInvoiceButton = this.page.locator(this.SELECTORS.BTN_DOWNLOAD_INVOICE).describe('Download Invoice Button');
+        this.continueButton = this.page.locator(this.SELECTORS.BTN_CONTINUE).describe('Continue Button');
     }
 
+    // ===========================
+    // Actions
+    // ===========================
+
     async verifyPageLoaded(): Promise<void> {
-        // Title might share with Payment or be generic, checking header is safer
         await expect(this.orderPlacedMessage).toBeVisible();
     }
 

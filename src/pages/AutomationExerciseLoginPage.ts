@@ -4,6 +4,23 @@ import { MESSSAGES } from '../constants/Messages';
 import { BasePage } from './BasePage';
 
 export class AutomationExerciseLoginPage extends BasePage {
+
+    // ===========================
+    // Constants & Selectors
+    // ===========================
+    private readonly SELECTORS = {
+        INPUT_LOGIN_EMAIL: '[data-qa="login-email"]',
+        INPUT_LOGIN_PASSWORD: '[data-qa="login-password"]',
+        BTN_LOGIN: '[data-qa="login-button"]',
+        INPUT_SIGNUP_NAME: '[data-qa="signup-name"]',
+        INPUT_SIGNUP_EMAIL: '[data-qa="signup-email"]',
+        BTN_SIGNUP: '[data-qa="signup-button"]'
+    };
+
+    // ===========================
+    // Locators
+    // ===========================
+
     // Login Form Locators
     private readonly loginEmailInput: Locator;
     private readonly loginPasswordInput: Locator;
@@ -19,19 +36,25 @@ export class AutomationExerciseLoginPage extends BasePage {
     constructor(page: Page) {
         super(page, 'LoginPage');
 
-        this.loginEmailInput = this.page.locator('[data-qa="login-email"]').describe('Login Email Input');
-        this.loginPasswordInput = this.page.locator('[data-qa="login-password"]').describe('Login Password Input');
-        this.loginButton = this.page.locator('[data-qa="login-button"]').describe('Login Button');
-        this.loginHeader = page.getByRole('heading', { name: MESSSAGES.LOGIN_HEADER }); // getByRole is self-describing enough usually
+        // Login
+        this.loginEmailInput = this.page.locator(this.SELECTORS.INPUT_LOGIN_EMAIL).describe('Login Email Input');
+        this.loginPasswordInput = this.page.locator(this.SELECTORS.INPUT_LOGIN_PASSWORD).describe('Login Password Input');
+        this.loginButton = this.page.locator(this.SELECTORS.BTN_LOGIN).describe('Login Button');
+        this.loginHeader = page.getByRole('heading', { name: MESSSAGES.LOGIN_HEADER });
 
-        this.signupNameInput = this.page.locator('[data-qa="signup-name"]').describe('Signup Name Input');
-        this.signupEmailInput = this.page.locator('[data-qa="signup-email"]').describe('Signup Email Input');
-        this.signupButton = this.page.locator('[data-qa="signup-button"]').describe('Signup Button');
+        // Signup
+        this.signupNameInput = this.page.locator(this.SELECTORS.INPUT_SIGNUP_NAME).describe('Signup Name Input');
+        this.signupEmailInput = this.page.locator(this.SELECTORS.INPUT_SIGNUP_EMAIL).describe('Signup Email Input');
+        this.signupButton = this.page.locator(this.SELECTORS.BTN_SIGNUP).describe('Signup Button');
         this.newUserSignupHeader = page.getByRole('heading', { name: MESSSAGES.NEW_USER_SIGNUP });
     }
 
+    // ===========================
+    // Actions
+    // ===========================
+
     async navigate() {
-        await this.page.goto(Routes.LOGIN);
+        await this.navigateTo(Routes.LOGIN);
     }
 
     async verifyNewUserSignupVisible() {

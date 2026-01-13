@@ -4,6 +4,21 @@ import { PAGE_TITLES } from '../utils/Constants';
 import { User } from '../utils/DataFactory';
 
 export class AutomationExerciseCheckoutPage extends BasePage {
+
+    // ===========================
+    // Constants & Selectors
+    // ===========================
+    private readonly SELECTORS = {
+        ADDRESS_DELIVERY: '#address_delivery',
+        ADDRESS_BILLING: '#address_invoice',
+        INPUT_COMMENT: 'textarea[name="message"]',
+        BTN_PLACE_ORDER: 'a[href="/payment"]',
+        TABLE_CART_ROWS: '#cart_info_table tbody tr'
+    };
+
+    // ===========================
+    // Locators
+    // ===========================
     private readonly deliveryAddress: Locator;
     private readonly billingAddress: Locator;
     private readonly commentArea: Locator;
@@ -12,12 +27,16 @@ export class AutomationExerciseCheckoutPage extends BasePage {
 
     constructor(page: Page) {
         super(page, 'CheckoutPage');
-        this.deliveryAddress = this.page.locator('#address_delivery').describe('Delivery Address');
-        this.billingAddress = this.page.locator('#address_invoice').describe('Billing Address');
-        this.commentArea = this.page.locator('textarea[name="message"]').describe('Comment Area');
-        this.placeOrderButton = this.page.locator('a[href="/payment"]').describe('Place Order Button');
-        this.cartItems = this.page.locator('#cart_info_table tbody tr').describe('Cart Items');
+        this.deliveryAddress = this.page.locator(this.SELECTORS.ADDRESS_DELIVERY).describe('Delivery Address');
+        this.billingAddress = this.page.locator(this.SELECTORS.ADDRESS_BILLING).describe('Billing Address');
+        this.commentArea = this.page.locator(this.SELECTORS.INPUT_COMMENT).describe('Comment Area');
+        this.placeOrderButton = this.page.locator(this.SELECTORS.BTN_PLACE_ORDER).describe('Place Order Button');
+        this.cartItems = this.page.locator(this.SELECTORS.TABLE_CART_ROWS).describe('Cart Items');
     }
+
+    // ===========================
+    // Actions
+    // ===========================
 
     async verifyPageLoaded(): Promise<void> {
         await expect(this.page, 'Checkout page should be loaded').toHaveTitle(PAGE_TITLES.CHECKOUT);
