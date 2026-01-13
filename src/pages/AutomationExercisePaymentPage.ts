@@ -3,59 +3,69 @@ import { BasePage } from './BasePage';
 import { PAGE_TITLES } from '../utils/Constants';
 
 export class AutomationExercisePaymentPage extends BasePage {
+
+    // ===========================
+    // Constants & Selectors
+    // ===========================
+    private readonly SELECTORS = {
+        INPUT_NAME: 'input[name="name_on_card"]',
+        INPUT_CARD_NUMBER: 'input[name="card_number"]',
+        INPUT_CVC: 'input[name="cvc"]',
+        INPUT_EXPIRY_MONTH: 'input[name="expiry_month"]',
+        INPUT_EXPIRY_YEAR: 'input[name="expiry_year"]',
+        BTN_PAY: '[data-qa="pay-button"]'
+    };
+
+    // ===========================
+    // Locators
+    // ===========================
     private readonly nameOnCardInput: Locator;
     private readonly cardNumberInput: Locator;
     private readonly cvcInput: Locator;
-    private readonly expirationInput: Locator; // Note: Site might separate MM/YYYY
     private readonly expirationMonthInput: Locator;
     private readonly expirationYearInput: Locator;
     private readonly payButton: Locator;
-    private readonly successMessage: Locator;
-    private readonly downloadInvoiceButton: Locator;
-    private readonly continueButton: Locator;
 
     constructor(page: Page) {
         super(page, 'PaymentPage');
-        this.nameOnCardInput = this.resolveLocator('input[name="name_on_card"]', 'Name on Card Input');
-        this.cardNumberInput = this.resolveLocator('input[name="card_number"]', 'Card Number Input');
-        this.cvcInput = this.resolveLocator('input[name="cvc"]', 'CVC Input');
-        this.expirationInput = this.resolveLocator('input[name="expiry_date"]', 'Expiration Input'); // Fallback if single field
-        this.expirationMonthInput = this.resolveLocator('input[name="expiry_month"]', 'Expiration Month Input');
-        this.expirationYearInput = this.resolveLocator('input[name="expiry_year"]', 'Expiration Year Input');
-        this.payButton = this.resolveLocator('[data-qa="pay-button"]', 'Pay and Confirm Order Button');
-        // Success message is usually on a subsequent page or dynamic state, but let's assume it transitions
-        this.successMessage = this.resolveLocator('.alert-success', 'Success Message'); // Common boostrap class, or text match
-        this.downloadInvoiceButton = this.resolveLocator('a.check_out', 'Download Invoice Button'); // Updated to potentially correct locator
-        this.continueButton = this.resolveLocator('[data-qa="continue-button"]', 'Continue Button');
+
+        this.nameOnCardInput = this.page.locator(this.SELECTORS.INPUT_NAME).describe('Name on Card Input');
+        this.cardNumberInput = this.page.locator(this.SELECTORS.INPUT_CARD_NUMBER).describe('Card Number Input');
+        this.cvcInput = this.page.locator(this.SELECTORS.INPUT_CVC).describe('CVC Input');
+        this.expirationMonthInput = this.page.locator(this.SELECTORS.INPUT_EXPIRY_MONTH).describe('Expiration Month Input');
+        this.expirationYearInput = this.page.locator(this.SELECTORS.INPUT_EXPIRY_YEAR).describe('Expiration Year Input');
+        this.payButton = this.page.locator(this.SELECTORS.BTN_PAY).describe('Pay and Confirm Order Button');
     }
+
+    // ===========================
+    // Actions
+    // ===========================
 
     async verifyPageLoaded(): Promise<void> {
-        await expect(this.page).toHaveTitle(PAGE_TITLES.PAYMENT);
+        await expect(this.page, 'Payment Page should be loaded').toHaveTitle(PAGE_TITLES.PAYMENT);
     }
 
-    async enterPaymentDetails(name: string, number: string, cvc: string, month: string, year: string): Promise<void> {
+    async enterNameOnCard(name: string): Promise<void> {
         await this.nameOnCardInput.fill(name);
+    }
+
+    async enterCardNumber(number: string): Promise<void> {
         await this.cardNumberInput.fill(number);
+    }
+
+    async enterCVC(cvc: string): Promise<void> {
         await this.cvcInput.fill(cvc);
+    }
+
+    async enterExpirationMonth(month: string): Promise<void> {
         await this.expirationMonthInput.fill(month);
+    }
+
+    async enterExpirationYear(year: string): Promise<void> {
         await this.expirationYearInput.fill(year);
     }
-
-    async fillPaymentDetails(): Promise<void> {
-        // Uses constants for default payment flow
-        const { PAYMENT_INFO } = require('../utils/Constants');
-        await this.enterPaymentDetails(
-            PAYMENT_INFO.NAME_ON_CARD,
-            PAYMENT_INFO.CARD_NUMBER,
-            PAYMENT_INFO.CVC,
-            PAYMENT_INFO.EXPIRY_MONTH,
-            PAYMENT_INFO.EXPIRY_YEAR
-        );
-    }
-
 
     async clickPayAndConfirm(): Promise<void> {
         await this.payButton.click();
     }
-
 }

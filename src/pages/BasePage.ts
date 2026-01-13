@@ -1,4 +1,5 @@
-import { Page, Locator } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { TIMEOUTS } from '../utils/Constants';
 
 export class BasePage {
     readonly page: Page;
@@ -10,11 +11,26 @@ export class BasePage {
     }
 
     /**
-     * Helper to define a locator with a description for logging/debugging.
-     * Currently just returns the locator, but enables future enhancement.
+     * Navigates to a specific URL and waits for load state
      */
-    protected resolveLocator(selector: string, description: string): Locator {
-        // In a real framework, you might wrap this to log usage relative to 'this.name'
-        return this.page.locator(selector);
+    async navigateTo(url: string) {
+        await this.page.goto(url);
+        await this.page.waitForLoadState('domcontentloaded');
     }
+
+    /**
+     * Reloads the page with optional wait logic
+     */
+    async reload() {
+        await this.page.reload();
+        await this.page.waitForLoadState('load');
+    }
+
+    /**
+     * Waits for the URL to contain a specific string or match a regex
+     */
+    async waitForUrl(url: string | RegExp) {
+        await this.page.waitForURL(url, { timeout: TIMEOUTS.DEFAULT });
+    }
+
 }

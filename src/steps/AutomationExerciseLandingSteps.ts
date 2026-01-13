@@ -9,6 +9,7 @@ export class AutomationExerciseLandingSteps {
         await this.landingPage.navigate();
     }
 
+
     @step('Verify landing page is opened')
     async verifyPageOpened() {
         await this.landingPage.verifyPageOpened();

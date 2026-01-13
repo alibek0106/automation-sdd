@@ -1,4 +1,5 @@
 import { AutomationExerciseProductsPage } from '../pages/AutomationExerciseProductsPage';
+import { expect } from '@playwright/test';
 import { step } from '../utils/Decorators';
 import { ERROR_MESSAGES } from '../utils/Constants';
 import { Product } from '../api/models/SearchProduct';
@@ -68,12 +69,7 @@ export class AutomationExerciseProductsSteps {
         for (const name of names) {
             const normalizedName = normalize(name);
             if (!normalizedName.includes(normalizedTerm)) {
-                // Log but don't fail immediately if it's a known weak match? No, fail but with better message.
-                // For now, let's assume if it fails strict check, we might check if the term is 'dress' and result is 'top' (fuzzy).
-                // But generally we want to enforce the test.
-                if (!normalizedName.includes(normalizedTerm)) {
-                    throw new Error(`${ERROR_MESSAGES.PRODUCT_VERIFICATION_FAILED}: Product "${name}" (normalized: ${normalizedName}) does not contain search term "${term}" (normalized: ${normalizedTerm})`);
-                }
+                throw new Error(`${ERROR_MESSAGES.PRODUCT_VERIFICATION_FAILED}: Product "${name}" (normalized: ${normalizedName}) does not contain search term "${term}" (normalized: ${normalizedTerm})`);
             }
         }
     }
@@ -114,51 +110,39 @@ export class AutomationExerciseProductsSteps {
 
     @step('Verify UI product count matches API count')
     async verifyProductCountMatchesApi(apiProducts: Product[]) {
-        const uiCount = await this.productsPage.getProductCount();
         const apiCount = apiProducts.length;
-
-        if (uiCount !== apiCount) {
-            throw new Error(`Product count mismatch: API returned ${apiCount} products, but UI displays ${uiCount} products`);
-        }
-
-        console.log(`✓ Product count matches: ${uiCount} products in both API and UI`);
+        await expect(this.productsPage.getProductCards(), `UI should display ${apiCount} products`).toHaveCount(apiCount);
     }
 
     @step('Verify UI product names match API response')
     async verifyProductNamesMatchApi(apiProducts: Product[]) {
+        // Ensure products are loaded first
+        await this.verifyProductCountMatchesApi(apiProducts);
+
         const uiProducts = await this.productsPage.getProductDetails();
 
         // Sort both arrays by name for consistent comparison
         const sortedApiProducts = [...apiProducts].sort((a, b) => a.name.localeCompare(b.name));
         const sortedUiProducts = [...uiProducts].sort((a, b) => a.name.localeCompare(b.name));
 
-        const mismatches: string[] = [];
-
         for (let i = 0; i < sortedApiProducts.length; i++) {
             const apiName = sortedApiProducts[i].name.trim();
             const uiName = sortedUiProducts[i]?.name.trim();
 
-            if (apiName !== uiName) {
-                mismatches.push(`Position ${i}: API="${apiName}", UI="${uiName}"`);
-            }
+            expect.soft(uiName, `Product name at index ${i} should match API`).toBe(apiName);
         }
-
-        if (mismatches.length > 0) {
-            throw new Error(`Product names mismatch:\n${mismatches.join('\n')}`);
-        }
-
-        console.log(`✓ All ${sortedApiProducts.length} product names match between API and UI`);
     }
 
     @step('Verify UI product prices match API response')
     async verifyProductPricesMatchApi(apiProducts: Product[]) {
+        // Ensure products are loaded first
+        await this.verifyProductCountMatchesApi(apiProducts);
+
         const uiProducts = await this.productsPage.getProductDetails();
 
         // Sort both arrays by name to ensure matching order
         const sortedApiProducts = [...apiProducts].sort((a, b) => a.name.localeCompare(b.name));
         const sortedUiProducts = [...uiProducts].sort((a, b) => a.name.localeCompare(b.name));
-
-        const mismatches: string[] = [];
 
         for (let i = 0; i < sortedApiProducts.length; i++) {
             const apiPrice = sortedApiProducts[i].price.trim();
@@ -167,16 +151,8 @@ export class AutomationExerciseProductsSteps {
             // Normalize prices for comparison (remove extra spaces, currencies, etc.)
             const normalizePrice = (price: string) => price.replace(/\s+/g, ' ').trim();
 
-            if (normalizePrice(apiPrice) !== normalizePrice(uiPrice)) {
-                mismatches.push(`Product "${sortedApiProducts[i].name}": API="${apiPrice}", UI="${uiPrice}"`);
-            }
+            expect.soft(normalizePrice(uiPrice), `Product price for "${sortedApiProducts[i].name}" should match API`).toBe(normalizePrice(apiPrice));
         }
-
-        if (mismatches.length > 0) {
-            throw new Error(`Product prices mismatch:\n${mismatches.join('\n')}`);
-        }
-
-        console.log(`✓ All ${sortedApiProducts.length} product prices match between API and UI`);
     }
 
     @step('Verify product card structure at index {0}')
@@ -192,12 +168,10 @@ export class AutomationExerciseProductsSteps {
             await this.productsPage.verifyProductCardStructure(i);
         }
 
-        console.log(`✓ All ${count} product cards have valid structure (Image + View Product link)`);
     }
 
     @step('Verify empty search results are displayed')
     async verifyEmptySearchResults() {
         await this.productsPage.verifyEmptyState();
-        console.log('✓ Empty state correctly displayed - no product cards visible');
     }
 }
