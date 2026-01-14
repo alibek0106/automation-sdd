@@ -1,7 +1,7 @@
-import { test } from '../../src/fixtures';
+import { test } from '@fixtures/index';
 import path from 'path';
-import { DataFactory } from '../../src/utils/DataFactory';
-import { MESSAGES } from '../../src/utils/Constants';
+import { DataFactory } from '@utils/DataFactory';
+import { MESSAGES } from '@utils/Constants';
 
 /**
  * TC10: Contact Form Submission

@@ -1,6 +1,6 @@
-import { test } from '../../src/fixtures';
-import { DataFactory } from '../../src/utils/DataFactory';
-import { PRODUCTS, PRODUCT_DETAILS } from '../../src/constants/Products';
+import { test } from '@fixtures/index';
+import { DataFactory } from '@utils/DataFactory';
+import { PRODUCTS, PRODUCT_DETAILS } from '@constants/Products';
 
 /**
  * TC08: Cart Quantity Update

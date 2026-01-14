@@ -15,7 +15,28 @@
         "skipLibCheck": true,
         "resolveJsonModule": true,
         "moduleResolution": "node",
-        "experimentalDecorators": false
+        "experimentalDecorators": false,
+        "baseUrl": ".",
+        "paths": {
+            "@fixtures/*": [
+                "src/fixtures/*"
+            ],
+            "@pages/*": [
+                "src/pages/*"
+            ],
+            "@steps/*": [
+                "src/steps/*"
+            ],
+            "@utils/*": [
+                "src/utils/*"
+            ],
+            "@api/*": [
+                "src/api/*"
+            ],
+            "@constants/*": [
+                "src/constants/*"
+            ]
+        }
     },
     "include": [
         "**/*.ts"

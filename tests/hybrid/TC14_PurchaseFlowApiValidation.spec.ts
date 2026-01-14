@@ -1,6 +1,6 @@
-import { test } from '../../src/fixtures';
+import { test } from '@fixtures/index';
 import { expect } from '@playwright/test';
-import { DataFactory } from '../../src/utils/DataFactory';
+import { DataFactory } from '@utils/DataFactory';
 
 test.describe('TC14: End-to-End Purchase Flow with API Data Validation', () => {
     let user = DataFactory.generateFullUser();

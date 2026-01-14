@@ -1,4 +1,4 @@
-import { test } from '../../src/fixtures';
+import { test } from '@fixtures/index';
 
 /**
  * TC11: API Products List

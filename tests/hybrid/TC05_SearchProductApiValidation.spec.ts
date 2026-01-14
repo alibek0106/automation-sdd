@@ -1,5 +1,5 @@
-import { test } from '../../src/fixtures/index';
-import { Product } from '../../src/api/models/SearchProduct';
+import { test } from '@fixtures/index';
+import { Product } from '@api/models/SearchProduct';
 
 /**
  * TC05: Search Product with API Validation (Hybrid Test)

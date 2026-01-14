@@ -1,4 +1,4 @@
-import { test } from '../../src/fixtures';
+import { test } from '@fixtures/index';
 
 /**
  * TC09: Product Category and Brand Filtering

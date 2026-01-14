@@ -1,6 +1,6 @@
-import { test, expect } from '../../src/fixtures';
-import { DataFactory } from '../../src/utils/DataFactory';
-import { Routes } from '../../src/constants/Routes';
+import { test, expect } from '@fixtures/index';
+import { DataFactory } from '@utils/DataFactory';
+import { Routes } from '@constants/Routes';
 
 /**
  * TC07: User Logout

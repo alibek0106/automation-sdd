@@ -1,5 +1,5 @@
-import { test } from '../../src/fixtures';
-import { DataFactory } from '../../src/utils/DataFactory';
+import { test } from '@fixtures/index';
+import { DataFactory } from '@utils/DataFactory';
 
 /**
  * TC01: User Registration

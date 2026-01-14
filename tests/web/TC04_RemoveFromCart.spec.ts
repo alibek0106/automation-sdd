@@ -1,6 +1,6 @@
-import { test } from '../../src/fixtures';
-import { DataFactory } from '../../src/utils/DataFactory';
-import { PRODUCTS } from '../../src/constants/Products';
+import { test } from '@fixtures/index';
+import { DataFactory } from '@utils/DataFactory';
+import { PRODUCTS } from '@constants/Products';
 
 /**
  * TC04: Cart Management

@@ -1,7 +1,7 @@
-import { test } from '../../src/fixtures';
-import { DataFactory, User } from '../../src/utils/DataFactory';
-import { AutomationExerciseApi } from '../../src/api/AutomationExerciseApi';
-import { PRODUCTS } from '../../src/constants/Products';
+import { test } from '@fixtures/index';
+import { DataFactory, User } from '@utils/DataFactory';
+import { AutomationExerciseApi } from '@api/AutomationExerciseApi';
+import { PRODUCTS } from '@constants/Products';
 
 /**
  * TC06: End-to-End Purchase Flow
