@@ -37,7 +37,7 @@ export class AutomationExerciseProductDetailPage extends BasePage {
 
         // Product Interaction
         this.quantityInput = this.page.locator(this.SELECTORS.INPUT_QUANTITY).describe('Quantity Input');
-        this.addToCartButton = this.page.locator(this.SELECTORS.BTN_ADD_TO_CART).describe('Add To Cart Button');
+        this.addToCartButton = this.page.getByRole('button', { name: 'Add to cart' }).describe('Add To Cart Button');
 
         // Product Info
         this.productInformation = this.page.locator(this.SELECTORS.CONTAINER_PRODUCT_INFO).describe('Product Information');

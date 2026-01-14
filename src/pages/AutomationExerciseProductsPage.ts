@@ -5,12 +5,6 @@ import { Routes } from '../constants/Routes';
 
 export class AutomationExerciseProductsPage extends BasePage {
 
-    // ===========================
-    // Constants & Selectors
-    // ===========================
-    private readonly RETRY_INTERVAL = 1000;
-    private readonly SHORT_POLLING_TIMEOUT = 2000;
-
     private readonly SELECTORS = {
         // Main lists and containers
         PRODUCTS_LIST: '.features_items',
@@ -28,7 +22,7 @@ export class AutomationExerciseProductsPage extends BasePage {
 
         // Search
         INPUT_SEARCH: '#search_product',
-        BTN_SUBMIT_SEARCH: '#submit_search',
+        BTN_SUBMIT_SEARCH: '//button[@id="submit_search"]',
         HEADER_SEARCHED: 'h2.title',
 
         // Header and Messages
@@ -100,8 +94,7 @@ export class AutomationExerciseProductsPage extends BasePage {
 
     async searchProduct(term: string) {
         await this.searchInput.fill(term);
-        await this.submitSearchButton.click();
-        await expect(this.page).toHaveURL(/\/products\?search=/, { timeout: TIMEOUTS.DEFAULT });
+        await this.clickWithNavigationRetry(this.submitSearchButton, /\/products\?search=/, 3);
     }
 
     async verifySearchedProductsHeader() {
@@ -122,14 +115,36 @@ export class AutomationExerciseProductsPage extends BasePage {
         const categoryLink = this.categoryPanel.locator(`//a[@href="#${category}"]`);
         const categoryBody = this.categoryPanel.locator(`#${category}`);
 
+        // Scroll to the category link to ensure it's in view (helper for sticky headers/ads)
+        await categoryLink.scrollIntoViewIfNeeded();
+
+        // If not already visible, click to expand. Use retries as accordion clicks can be flaky.
         if (!await categoryBody.isVisible()) {
-            await categoryLink.click();
-            await expect(categoryBody).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
+            for (let i = 0; i < 3; i++) {
+                try {
+                    await categoryLink.click();
+                    await expect(categoryBody, `Category body for ${category} should be visible`).toBeVisible({ timeout: 2000 });
+                    return; // Success
+                } catch (e) {
+                    if (i === 2) throw e; // Throw on last attempt
+                    // Wait briefly before retrying
+                    await this.page.waitForTimeout(500);
+                }
+            }
         }
     }
 
     async clickSubCategory(mainCategory: string, subCategory: string) {
+        // Ensure the main category is really open before trying to find subcategory
+        const categoryBody = this.categoryPanel.locator(`#${mainCategory}`);
+        await expect(categoryBody).toBeVisible();
+
         const subCategoryLink = this.getSubCategoryLink(mainCategory, subCategory);
+
+        // Ensure subcategory is reachable
+        await subCategoryLink.scrollIntoViewIfNeeded();
+        await expect(subCategoryLink).toBeVisible();
+
         const href = await subCategoryLink.getAttribute('href');
 
         if (!href) {
@@ -257,9 +272,23 @@ export class AutomationExerciseProductsPage extends BasePage {
     /**
      * Robust click with navigation retry.
      * Handles cases where ads intercept clicks or navigation doesn't trigger immediately.
+     * Default retries = 1 means "try once, no retry".
      */
-    private async clickWithNavigationRetry(element: Locator, expectedUrlPattern: RegExp) {
-        await element.click();
-        await expect(this.page).toHaveURL(expectedUrlPattern, { timeout: TIMEOUTS.NAVIGATION });
+    private async clickWithNavigationRetry(element: Locator, expectedUrlPattern: RegExp, retries = 1) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                await element.click();
+                // Use a shorter timeout for interim attempts, full timeout for the last one
+                const timeout = i === retries - 1 ? TIMEOUTS.NAVIGATION : 6000;
+                await expect(this.page).toHaveURL(expectedUrlPattern, { timeout });
+                return;
+            } catch (error) {
+                if (i === retries - 1) {
+                    throw error;
+                }
+                // If we are retrying, wait a bit to ensure stability
+                await this.page.waitForTimeout(1000);
+            }
+        }
     }
 }

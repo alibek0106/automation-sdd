@@ -25,7 +25,7 @@ export class AutomationExerciseOrderConfirmationPage extends BasePage {
         // Using getByText with the constant message is robust and readable here
         this.orderPlacedMessage = page.getByText(MESSAGES.ORDER_PLACED);
 
-        this.downloadInvoiceButton = this.page.locator(this.SELECTORS.BTN_DOWNLOAD_INVOICE).describe('Download Invoice Button');
+        this.downloadInvoiceButton = this.page.getByRole('link', { name: 'Download Invoice' }).describe('Download Invoice Button');
         this.continueButton = this.page.locator(this.SELECTORS.BTN_CONTINUE).describe('Continue Button');
     }
 

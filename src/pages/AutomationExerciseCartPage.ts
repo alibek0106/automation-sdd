@@ -35,7 +35,7 @@ export class AutomationExerciseCartPage extends BasePage {
         this.cartTable = this.page.locator(this.SELECTORS.TABLE_CART).describe('Cart Table');
         this.cartRows = this.page.locator(this.SELECTORS.TABLE_ROWS).describe('Cart Rows');
         this.emptyCartMessage = this.page.locator(this.SELECTORS.MSG_EMPTY_CART).describe('Empty Cart Message');
-        this.proceedToCheckoutButton = this.page.locator(this.SELECTORS.BTN_PROCEED_CHECKOUT).describe('Proceed To Checkout Button');
+        this.proceedToCheckoutButton = this.page.getByText('Proceed To Checkout').describe('Proceed To Checkout Button');
     }
 
     // ===========================
