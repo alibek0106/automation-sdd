@@ -1,4 +1,4 @@
-import { test } from '../../src/fixtures';
+import { test } from '@fixtures/index';
 
 /**
  * TC13: Hybrid Filtering Validation

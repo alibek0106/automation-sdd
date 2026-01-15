@@ -1,4 +1,5 @@
-import { test } from '../../src/fixtures';
+/* eslint-disable playwright/expect-expect */
+import { test } from '@fixtures/index';
 
 /**
  * TC03: Shopping Cart Functionality
@@ -41,7 +42,6 @@ test.describe('Shopping Cart Functionality', () => {
         await automationExerciseProductsSteps.verifyProductsPageVisible();
 
         // And I add the second product to the cart with quantity "1"
-        const QUANTITY_1 = '1';
         await automationExerciseProductsSteps.addProductToCart(1); // 2nd product (index 1)
 
         // And I click "View Cart" in the modal

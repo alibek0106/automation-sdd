@@ -1,4 +1,4 @@
-import { test } from '../../src/fixtures';
+import { test } from '@fixtures/index';
 
 /**
  * TC09: Product Category and Brand Filtering
@@ -64,6 +64,5 @@ test.describe('TC09: Product Category and Brand Filtering', () => {
         await automationExerciseProductsSteps.verifyPageHeader('Men - Jeans Products');
         await automationExerciseProductsSteps.verifyProductCountGreaterThan(0);
 
-        // We assume Products Page logic correctly clears previous filter. 
     });
 });

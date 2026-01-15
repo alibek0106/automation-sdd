@@ -1,8 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+const DEFAULT_TIMEOUT = 30000;
 
 /**
  * Get worker-specific storage state path
@@ -50,4 +56,5 @@ export default defineConfig({
             },
         },
     ],
+    timeout: DEFAULT_TIMEOUT,
 });

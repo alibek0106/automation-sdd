@@ -3,19 +3,28 @@ import { BasePage } from './BasePage';
 import { MESSAGES } from '../utils/Constants';
 
 export class AutomationExerciseOrderConfirmationPage extends BasePage {
+    // ===========================
+    // Locators
+    // ===========================
     private readonly orderPlacedMessage: Locator;
     private readonly downloadInvoiceButton: Locator;
     private readonly continueButton: Locator;
 
     constructor(page: Page) {
         super(page, 'OrderConfirmationPage');
-        this.orderPlacedMessage = page.getByText(MESSAGES.ORDER_PLACED); // getByText is okay
-        this.downloadInvoiceButton = this.resolveLocator('a.check_out', 'Download Invoice Button');
-        this.continueButton = this.resolveLocator('[data-qa="continue-button"]', 'Continue Button');
+
+        // Using getByText with the constant message is robust and readable here
+        this.orderPlacedMessage = page.getByText(MESSAGES.ORDER_PLACED);
+
+        this.downloadInvoiceButton = this.page.getByRole('link', { name: 'Download Invoice' }).describe('Download Invoice Button');
+        this.continueButton = this.page.getByRole('link', { name: 'Continue' }).describe('Continue Button');
     }
 
+    // ===========================
+    // Actions
+    // ===========================
+
     async verifyPageLoaded(): Promise<void> {
-        // Title might share with Payment or be generic, checking header is safer
         await expect(this.orderPlacedMessage).toBeVisible();
     }
 
@@ -28,7 +37,7 @@ export class AutomationExerciseOrderConfirmationPage extends BasePage {
     }
 
     async verifyDownloadInvoiceVisible(): Promise<void> {
-        await expect(this.downloadInvoiceButton).toBeVisible();
+        await expect(this.downloadInvoiceButton, 'Download Invoice Button should be visible').toBeVisible();
     }
 
     async clickContinue(): Promise<void> {

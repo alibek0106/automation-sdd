@@ -1,7 +1,23 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { TIMEOUTS } from '../utils/Constants';
 import { BasePage } from './BasePage';
 
 export class AutomationExerciseProductDetailPage extends BasePage {
+
+    // ===========================
+    // Constants & Selectors
+    // ===========================
+    private readonly RETRY_INTERVAL = 1000;
+    private readonly SHORT_POLLING_TIMEOUT = 2000;
+
+    private readonly SELECTORS = {
+        CONTAINER_PRODUCT_INFO: '.product-information',
+        TEXT_PRODUCT_PRICE: '.product-information span span'
+    };
+
+    // ===========================
+    // Locators
+    // ===========================
     private readonly quantityInput: Locator;
     private readonly addToCartButton: Locator;
     private readonly productInformation: Locator;
@@ -12,42 +28,63 @@ export class AutomationExerciseProductDetailPage extends BasePage {
 
     constructor(page: Page) {
         super(page, 'ProductDetailPage');
-        this.quantityInput = this.resolveLocator('#quantity', 'Quantity Input');
-        this.addToCartButton = this.resolveLocator('button.cart', 'Add To Cart Button');
-        this.productInformation = this.resolveLocator('.product-information', 'Product Information');
-        // Product Details
-        this.productName = this.resolveLocator('.product-information h2', 'Product Name');
-        this.productPrice = this.resolveLocator('.product-information span span', 'Product Price');
-        // Modal buttons
-        this.continueShoppingButton = this.resolveLocator('.modal-footer button', 'Continue Shopping Button');
-        this.viewCartLink = this.resolveLocator('.modal-body a[href="/view_cart"]', 'View Cart Link');
+
+        // Product Interaction
+        this.quantityInput = this.page.locator('#quantity').describe('Quantity Input');
+        this.addToCartButton = this.page.getByRole('button', { name: 'Add to cart' }).describe('Add To Cart Button');
+
+        // Product Info
+        this.productInformation = this.page.locator(this.SELECTORS.CONTAINER_PRODUCT_INFO).describe('Product Information');
+        // Scoped and role-based for Heading
+        this.productName = this.productInformation.getByRole('heading', { level: 2 }).describe('Product Name');
+        this.productPrice = this.page.locator(this.SELECTORS.TEXT_PRODUCT_PRICE).describe('Product Price');
+
+        // Modal
+        this.continueShoppingButton = this.page.getByRole('button', { name: 'Continue Shopping' }).describe('Continue Shopping Button');
+        this.viewCartLink = this.page.getByRole('link', { name: 'View Cart' }).describe('View Cart Link');
     }
 
-    async verifyProductDetailVisible() {
-        await expect(this.productInformation).toBeVisible();
-    }
+    // ===========================
+    // Actions
+    // ===========================
 
-    async getProductName(): Promise<string> {
-        return await this.productName.innerText();
-    }
-
-    async getProductPrice(): Promise<string> {
-        return await this.productPrice.innerText();
-    }
-
-    async setQuantity(quantity: string) {
+    async setQuantity(quantity: string): Promise<void> {
         await this.quantityInput.fill(quantity);
     }
 
-    async addToCart() {
-        await this.addToCartButton.click();
+    async addToCart(): Promise<void> {
+        // Retry mechanism: Click add to cart and wait for modal to appear.
+        // Handles cases where ads intercept the click.
+        await expect(async () => {
+            await this.addToCartButton.click();
+            await expect(this.viewCartLink).toBeVisible({ timeout: this.SHORT_POLLING_TIMEOUT });
+        }).toPass({
+            timeout: TIMEOUTS.DEFAULT,
+            intervals: [this.RETRY_INTERVAL]
+        });
     }
 
-    async clickContinueShopping() {
+    async clickContinueShopping(): Promise<void> {
         await this.continueShoppingButton.click();
     }
 
-    async clickViewCart() {
+    async clickViewCart(): Promise<void> {
         await this.viewCartLink.click();
+    }
+
+    // ===========================
+    // Verifications / Getters
+    // ===========================
+
+    async verifyProductDetailVisible(): Promise<void> {
+        await expect(this.productInformation, 'Product Information should be visible').toBeVisible();
+    }
+
+    async getProductName(): Promise<string> {
+        return this.productName.innerText();
+    }
+
+    async getProductPrice(): Promise<string> {
+        return this.productPrice.innerText();
     }
 }

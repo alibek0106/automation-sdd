@@ -1,6 +1,6 @@
-import { test, expect } from '../../src/fixtures';
-import { DataFactory } from '../../src/utils/DataFactory';
-import { Routes } from '../../src/constants/Routes';
+import { test, expect } from '@fixtures/index';
+import { DataFactory } from '@utils/DataFactory';
+import { Routes } from '@constants/Routes';
 
 /**
  * TC07: User Logout
@@ -23,7 +23,7 @@ test.describe('TC07: User Logout Logic', () => {
         const addressInfo = DataFactory.generateAddressInfo();
 
         // API Registration
-        await userApiSteps.createAccount(user, accountDetails, addressInfo);
+        await userApiSteps.registerUser(user, accountDetails, addressInfo);
 
         // UI Login
         await automationExerciseLandingSteps.navigateToHomepage();
@@ -36,7 +36,7 @@ test.describe('TC07: User Logout Logic', () => {
 
     test.afterEach(async ({ userApiSteps }) => {
         if (user) {
-            await userApiSteps.deleteAccount(user.email, user.password);
+            await userApiSteps.deleteUser(user.email, user.password);
         }
     });
 

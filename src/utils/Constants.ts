@@ -1,7 +1,7 @@
 export const TIMEOUTS = {
     DEFAULT: 5000,
     VISIBILITY: 10000,
-    NAVIGATION: 15000,
+    NAVIGATION: 30000,
     API_TIMEOUT: 30000,
 };
 

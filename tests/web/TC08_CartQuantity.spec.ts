@@ -1,6 +1,7 @@
-import { test } from '../../src/fixtures';
-import { DataFactory } from '../../src/utils/DataFactory';
-import { PRODUCTS, PRODUCT_DETAILS } from '../../src/constants/Products';
+/* eslint-disable playwright/expect-expect */
+import { test } from '@fixtures/index';
+import { DataFactory } from '@utils/DataFactory';
+import { PRODUCTS, PRODUCT_DETAILS } from '@constants/Products';
 
 /**
  * TC08: Cart Quantity Update
@@ -22,7 +23,7 @@ test.describe('TC08: Cart Quantity Update', () => {
         const account = DataFactory.generateAccountDetails();
         const address = DataFactory.generateAddressInfo();
 
-        await userApiSteps.createAccount(user, account, address);
+        await userApiSteps.registerUser(user, account, address);
 
         await automationExerciseLandingSteps.navigateToHomepage();
         await automationExerciseNavigationSteps.clickSignupLogin();
@@ -32,7 +33,7 @@ test.describe('TC08: Cart Quantity Update', () => {
 
     test.afterEach(async ({ userApiSteps }) => {
         if (user) {
-            await userApiSteps.deleteAccount(user.email, user.password);
+            await userApiSteps.deleteUser(user.email, user.password);
         }
     });
 
@@ -120,7 +121,6 @@ test.describe('TC08: Cart Quantity Update', () => {
     test('Scenario: Handle invalid quantity updates', async ({
         automationExerciseProductsSteps,
         automationExerciseProductDetailSteps,
-        automationExerciseNavigationSteps,
         automationExerciseCartSteps
     }) => {
         const productName = PRODUCTS.BLUE_TOP;
@@ -131,8 +131,8 @@ test.describe('TC08: Cart Quantity Update', () => {
         // Attempt to set quantity to 0
         await automationExerciseProductDetailSteps.addProductToCartWithQuantity('0');
 
-        // Navigate to cart to verify logic
-        await automationExerciseNavigationSteps.clickCart();
+        // Navigate to cart to verify logic (Using modal link as it's obscuring the top nav)
+        await automationExerciseProductDetailSteps.clickViewCart();
 
         // Verify cart is empty
         await automationExerciseCartSteps.verifyCartEmpty();

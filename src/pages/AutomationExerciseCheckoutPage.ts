@@ -4,6 +4,19 @@ import { PAGE_TITLES } from '../utils/Constants';
 import { User } from '../utils/DataFactory';
 
 export class AutomationExerciseCheckoutPage extends BasePage {
+
+    // ===========================
+    // Constants & Selectors
+    // ===========================
+    private readonly SELECTORS = {
+        ADDRESS_DELIVERY: '#address_delivery',
+        ADDRESS_BILLING: '#address_invoice',
+        TABLE_CART_ROWS: '#cart_info_table tbody tr'
+    };
+
+    // ===========================
+    // Locators
+    // ===========================
     private readonly deliveryAddress: Locator;
     private readonly billingAddress: Locator;
     private readonly commentArea: Locator;
@@ -12,29 +25,33 @@ export class AutomationExerciseCheckoutPage extends BasePage {
 
     constructor(page: Page) {
         super(page, 'CheckoutPage');
-        this.deliveryAddress = this.resolveLocator('#address_delivery', 'Delivery Address');
-        this.billingAddress = this.resolveLocator('#address_invoice', 'Billing Address');
-        this.commentArea = this.resolveLocator('textarea[name="message"]', 'Comment Area');
-        this.placeOrderButton = this.resolveLocator('a[href="/payment"]', 'Place Order Button');
-        this.cartItems = this.resolveLocator('#cart_info_table tbody tr', 'Cart Items');
+        this.deliveryAddress = this.page.locator(this.SELECTORS.ADDRESS_DELIVERY).describe('Delivery Address');
+        this.billingAddress = this.page.locator(this.SELECTORS.ADDRESS_BILLING).describe('Billing Address');
+        this.commentArea = this.page.locator('textarea[name="message"]').describe('Comment Area');
+        this.placeOrderButton = this.page.getByRole('link', { name: 'Place Order' }).describe('Place Order Button');
+        this.cartItems = this.page.locator(this.SELECTORS.TABLE_CART_ROWS).describe('Cart Items');
     }
 
+    // ===========================
+    // Actions
+    // ===========================
+
     async verifyPageLoaded(): Promise<void> {
-        await expect(this.page).toHaveTitle(PAGE_TITLES.CHECKOUT);
+        await expect(this.page, 'Checkout page should be loaded').toHaveTitle(PAGE_TITLES.CHECKOUT);
     }
 
     async verifyDeliveryAddress(user: User): Promise<void> {
-        await expect(this.deliveryAddress).toContainText(user.address);
-        await expect(this.deliveryAddress).toContainText(user.city);
-        await expect(this.deliveryAddress).toContainText(user.country);
-        await expect(this.deliveryAddress).toContainText(user.mobileNumber);
+        await expect(this.deliveryAddress, 'Delivery address should have expected address').toContainText(user.address);
+        await expect(this.deliveryAddress, 'Delivery address should have expected city').toContainText(user.city);
+        await expect(this.deliveryAddress, 'Delivery address should have expected country').toContainText(user.country);
+        await expect(this.deliveryAddress, 'Delivery address should have expected mobile number').toContainText(user.mobileNumber);
     }
 
     async verifyBillingAddress(user: User): Promise<void> {
-        await expect(this.billingAddress).toContainText(user.address);
-        await expect(this.billingAddress).toContainText(user.city);
-        await expect(this.billingAddress).toContainText(user.country);
-        await expect(this.billingAddress).toContainText(user.mobileNumber);
+        await expect(this.billingAddress, 'Billing address should have expected address').toContainText(user.address);
+        await expect(this.billingAddress, 'Billing address should have expected city').toContainText(user.city);
+        await expect(this.billingAddress, 'Billing address should have expected country').toContainText(user.country);
+        await expect(this.billingAddress, 'Billing address should have expected mobile number').toContainText(user.mobileNumber);
     }
 
     async enterComment(comment: string): Promise<void> {
@@ -46,10 +63,10 @@ export class AutomationExerciseCheckoutPage extends BasePage {
     }
 
     async verifyCartItemsVisible(): Promise<void> {
-        await expect(this.cartItems.first()).toBeVisible();
+        await expect(this.cartItems.first(), 'Cart items should be visible').toBeVisible();
     }
 
     async verifyProductInOrder(productName: string): Promise<void> {
-        await expect(this.cartItems.filter({ hasText: productName })).toBeVisible();
+        await expect(this.cartItems.filter({ hasText: productName }), 'Product should be in order').toBeVisible();
     }
 }
