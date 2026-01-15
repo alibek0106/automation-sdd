@@ -5,50 +5,50 @@ export class AutomationExerciseLoginSteps {
     constructor(private loginPage: AutomationExerciseLoginPage) { }
 
     @step('Navigate to Login page')
-    async navigateToLoginPage() {
+    async navigateToLoginPage(): Promise<void> {
         await this.loginPage.navigate();
     }
 
     @step('Verify "New User Signup!" is visible')
-    async verifyNewUserSignupVisible() {
+    async verifyNewUserSignupVisible(): Promise<void> {
         await this.loginPage.verifyNewUserSignupVisible();
     }
 
     @step('Verify "Login to your account" header is visible')
-    async verifyLoginHeaderVisible() {
+    async verifyLoginHeaderVisible(): Promise<void> {
         await this.loginPage.verifyLoginHeaderVisible();
     }
 
     @step('Enter signup credentials: {0}, {1}')
-    async enterSignupCredentials(name: string, email: string) {
+    async enterSignupCredentials(name: string, email: string): Promise<void> {
         await this.loginPage.enterSignupName(name);
         await this.loginPage.enterSignupEmail(email);
     }
 
     @step('Click Signup button')
-    async clickSignupButton() {
+    async clickSignupButton(): Promise<void> {
         await this.loginPage.clickSignup();
     }
 
     @step('Signup with name: {0}, email: {1}')
-    async signup(name: string, email: string) {
+    async signup(name: string, email: string): Promise<void> {
         await this.enterSignupCredentials(name, email);
         await this.clickSignupButton();
     }
 
     @step('Enter login credentials: {0}, ***')
-    async enterLoginCredentials(email: string, password: string) {
+    async enterLoginCredentials(email: string, password: string): Promise<void> {
         await this.loginPage.enterLoginEmail(email);
         await this.loginPage.enterLoginPassword(password);
     }
 
     @step('Click Login button')
-    async clickLoginButton() {
+    async clickLoginButton(): Promise<void> {
         await this.loginPage.clickLogin();
     }
 
     @step('Login with email: {0}')
-    async login(email: string, password: string) {
+    async login(email: string, password: string): Promise<void> {
         await this.enterLoginCredentials(email, password);
         await this.clickLoginButton();
     }

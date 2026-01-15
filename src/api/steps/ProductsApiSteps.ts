@@ -2,7 +2,12 @@ import { ApiClient } from '../ApiClient';
 import { expect } from '../../fixtures';
 import { API_ENDPOINTS, API_STATUS_CODES, API_MESSAGES, API_RESPONSE_KEYS } from '../../utils/Constants';
 import { step } from '../../utils/Decorators';
-import { Product, SearchProductResponse } from '../models/SearchProduct';
+import { Product } from '../models/SearchProduct';
+import {
+    ProductListResponseSchema,
+    SearchProductResponseSchema,
+    BrandListResponseSchema
+} from '../schemas/ProductSchemas';
 
 export class ProductsApiSteps {
     private storedApiProducts: Product[] = [];
@@ -16,16 +21,12 @@ export class ProductsApiSteps {
         // Verify status code
         await expect(response).toHaveStatusCode(API_STATUS_CODES.OK);
 
-        // Verify response body
+        // Verify response body with Zod Schema
         const responseBody = await response.json();
+        const parsedResponse = ProductListResponseSchema.parse(responseBody);
 
-        // Verify 'products' property exists
-        expect(responseBody).toHaveProperty(API_RESPONSE_KEYS.PRODUCTS);
-
-        // Verify products list is not empty
-        const products = responseBody[API_RESPONSE_KEYS.PRODUCTS];
-        expect(Array.isArray(products), 'Products should be an array').toBeTruthy();
-        expect(products.length).toBeGreaterThan(0);
+        // Additional logical assertions
+        expect(parsedResponse.products.length).toBeGreaterThan(0);
     }
 
     @step('Verify POST to products list is not supported')
@@ -50,15 +51,15 @@ export class ProductsApiSteps {
         // Verify status code
         await expect(response).toHaveStatusCode(API_STATUS_CODES.OK);
 
-        // Parse response
-        const responseBody: SearchProductResponse = await response.json();
+        // Parse and Validate with Zod
+        const responseBody = await response.json();
+        const parsedResponse = SearchProductResponseSchema.parse(responseBody);
 
-        // Verify response structure
-        expect(responseBody).toHaveProperty(API_RESPONSE_KEYS.RESPONSE_CODE, API_STATUS_CODES.OK);
-        expect(responseBody).toHaveProperty(API_RESPONSE_KEYS.PRODUCTS);
+        // Verify response structure logic
+        expect(parsedResponse.responseCode).toBe(API_STATUS_CODES.OK);
 
         // Store and return products
-        this.storedApiProducts = responseBody.products;
+        this.storedApiProducts = parsedResponse.products;
         return this.storedApiProducts;
     }
 
@@ -76,34 +77,37 @@ export class ProductsApiSteps {
         // Verify status code
         await expect(response).toHaveStatusCode(API_STATUS_CODES.OK);
 
-        // Parse response
-        const responseBody: SearchProductResponse = await response.json();
+        // Parse and Validate with Zod
+        const responseBody = await response.json();
+        const parsedResponse = SearchProductResponseSchema.parse(responseBody);
 
-        // Verify response indicates no products
-        expect(responseBody).toHaveProperty(API_RESPONSE_KEYS.RESPONSE_CODE, API_STATUS_CODES.OK);
-        expect(responseBody).toHaveProperty(API_RESPONSE_KEYS.PRODUCTS);
-
-        const products = responseBody.products;
-        expect(Array.isArray(products), 'Products should be an array').toBeTruthy();
-        expect(products.length, `Expected no products for search term "${searchTerm}"`).toBe(0);
+        // Verify response logic
+        expect(parsedResponse.responseCode).toBe(API_STATUS_CODES.OK);
+        expect(parsedResponse.products.length, `Expected no products for search term "${searchTerm}"`).toBe(0);
     }
 
     @step('Get all brands via API')
-    async getAllBrands(): Promise<any[]> {
+    async getAllBrands(): Promise<{ id: number; brand: string }[]> {
         const response = await this.apiClient.get(API_ENDPOINTS.BRANDS_LIST);
         await expect(response).toHaveStatusCode(API_STATUS_CODES.OK);
 
         const responseBody = await response.json();
-        expect(responseBody).toHaveProperty('brands');
-        return responseBody.brands;
+
+        // Validate with Zod
+        const parsedResponse = BrandListResponseSchema.parse(responseBody);
+
+        return parsedResponse.brands;
     }
 
     @step('Get all products via API')
     async getAllProducts(): Promise<Product[]> {
         const response = await this.apiClient.get(API_ENDPOINTS.PRODUCTS_LIST);
         await expect(response).toHaveStatusCode(API_STATUS_CODES.OK);
+
         const responseBody = await response.json();
-        return responseBody.products;
+        const parsedResponse = ProductListResponseSchema.parse(responseBody);
+
+        return parsedResponse.products;
     }
 
     @step('Get products by Brand "{0}" via API')

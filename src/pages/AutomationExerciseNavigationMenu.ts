@@ -2,21 +2,6 @@ import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class AutomationExerciseNavigationMenu extends BasePage {
-
-    // ===========================
-    // Constants & Selectors
-    // ===========================
-    private readonly SELECTORS = {
-        LINK_HOME: 'a[href="/"]',
-        LINK_PRODUCTS: 'a[href="/products"]',
-        LINK_CART: 'a[href="/view_cart"]',
-        LINK_LOGIN: 'a[href="/login"]',
-        LINK_DELETE_ACCOUNT: 'a[href="/delete_account"]',
-        LINK_LOGOUT: 'a[href="/logout"]',
-        // Playwright text engine is robust for partial text matching
-        TEXT_LOGGED_IN_AS: 'text=Logged in as'
-    };
-
     // ===========================
     // Locators
     // ===========================
@@ -31,51 +16,53 @@ export class AutomationExerciseNavigationMenu extends BasePage {
     constructor(page: Page) {
         super(page, 'NavigationMenu');
 
-        // Refined Home link to ensure we don't pick up Logo if it shares same Href.
-        this.homeLink = this.page.locator(this.SELECTORS.LINK_HOME).filter({ hasText: 'Home' }).first().describe('Home Link');
+        this.homeLink = this.page.getByRole('link', { name: 'Home' }).describe('Home Link');
+        this.productsLink = this.page.getByRole('link', { name: 'Products' }).describe('Products Link');
+        this.cartLink = this.page.locator('.shop-menu').getByRole('link', { name: 'Cart' }).describe('Cart Link');
+        this.signupLoginLink = this.page.getByRole('link', { name: 'Signup / Login' }).describe('Signup/Login Link');
+        this.deleteAccountLink = this.page.getByRole('link', { name: 'Delete Account' }).describe('Delete Account Link');
+        this.logoutLink = this.page.getByRole('link', { name: 'Logout' }).describe('Logout Link');
 
-        this.productsLink = this.page.locator(this.SELECTORS.LINK_PRODUCTS).describe('Products Link');
-        this.cartLink = this.page.locator(this.SELECTORS.LINK_CART).first().describe('Cart Link');
-        this.signupLoginLink = this.page.locator(this.SELECTORS.LINK_LOGIN).describe('Signup/Login Link');
-        this.deleteAccountLink = this.page.locator(this.SELECTORS.LINK_DELETE_ACCOUNT).describe('Delete Account Link');
-        this.logoutLink = this.page.locator(this.SELECTORS.LINK_LOGOUT).describe('Logout Link');
-        this.loggedInAsText = this.page.locator(this.SELECTORS.TEXT_LOGGED_IN_AS).describe('Logged In User');
+        // Handling "Logged in as" strictly
+        this.loggedInAsText = this.page.getByText('Logged in as').describe('Logged In User');
     }
 
     // ===========================
     // Actions
     // ===========================
 
-    async clickSignupLogin() {
+    async clickSignupLogin(): Promise<void> {
         await this.signupLoginLink.click();
+        await expect(this.page).toHaveURL(/\/login/);
     }
 
-    async clickDeleteAccount() {
+    async clickDeleteAccount(): Promise<void> {
         await this.deleteAccountLink.click();
     }
 
-    async clickLogout() {
+    async clickLogout(): Promise<void> {
         await this.logoutLink.click();
     }
 
-    async verifyUserLoggedIn(username: string) {
+    async verifyUserLoggedIn(username: string): Promise<void> {
         await expect(this.loggedInAsText, 'Should be logged in').toBeVisible();
         await expect(this.page.getByText(username), 'Username should be visible').toBeVisible();
     }
 
-    async verifyUserNotLoggedIn() {
+    async verifyUserNotLoggedIn(): Promise<void> {
         await expect(this.loggedInAsText, 'Should not be logged in').not.toBeVisible();
     }
 
-    async clickHome() {
+    async clickHome(): Promise<void> {
         await this.homeLink.click();
     }
 
-    async clickProducts() {
+    async clickProducts(): Promise<void> {
         await this.productsLink.click();
     }
 
-    async clickCart() {
+    async clickCart(): Promise<void> {
         await this.cartLink.click();
+        await expect(this.page).toHaveURL(/\/view_cart/);
     }
 }

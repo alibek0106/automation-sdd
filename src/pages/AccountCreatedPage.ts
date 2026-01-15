@@ -1,5 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
-import { MESSSAGES } from '../constants/Messages';
+import { MESSAGES } from '../constants/Messages';
 import { BasePage } from './BasePage';
 
 export class AccountCreatedPage extends BasePage {
@@ -19,7 +19,7 @@ export class AccountCreatedPage extends BasePage {
 
     constructor(page: Page) {
         super(page, 'AccountCreatedPage');
-        this.accountCreatedHeader = page.getByText(MESSSAGES.ACCOUNT_CREATED);
+        this.accountCreatedHeader = page.getByText(MESSAGES.ACCOUNT_CREATED);
         this.continueButton = this.page.locator(this.SELECTORS.BTN_CONTINUE).describe('Continue Button');
     }
 
@@ -27,11 +27,11 @@ export class AccountCreatedPage extends BasePage {
     // Actions
     // ===========================
 
-    async verifyAccountCreatedMessage() {
+    async verifyAccountCreatedMessage(): Promise<void> {
         await expect(this.accountCreatedHeader, 'Account created message should be visible').toBeVisible();
     }
 
-    async clickContinue() {
+    async clickContinue(): Promise<void> {
         await this.continueButton.click();
     }
 }

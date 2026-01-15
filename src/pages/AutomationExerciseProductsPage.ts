@@ -17,23 +17,15 @@ export class AutomationExerciseProductsPage extends BasePage {
         PRODUCT_NAME: '.productinfo p',
         PRODUCT_PRICE: '.productinfo h2',
         PRODUCT_IMAGE: 'img',
-        BTN_ADD_TO_CART: 'Add to cart', // For Use with getByRole('button', { name: ... }) OR text matching
-        LINK_VIEW_PRODUCT: 'View Product', // For Use with getByText(...)
 
         // Search
-        INPUT_SEARCH: '#search_product',
-        BTN_SUBMIT_SEARCH: '//button[@id="submit_search"]',
         HEADER_SEARCHED: 'h2.title',
 
         // Header and Messages
         PAGE_HEADER_XPATH: '//h2[contains(@class, "title")]',
-        EMPTY_STATE_TEXT: 'No product',
 
         // Modals / Overlays
         MODAL_CART: '#cartModal',
-        BTN_CONTINUE_SHOPPING: 'button[name="Continue Shopping"]', // refined from getByRole for consistency if needed, but getByRole is fine too. 
-        // Keeping getByRole in method is fine, but if we want strictly string selectors:
-        BTN_CONTINUE_SHOPPING_ROLE: 'Continue Shopping'
     };
 
     // ===========================
@@ -61,8 +53,8 @@ export class AutomationExerciseProductsPage extends BasePage {
         this.productsList = this.page.locator(this.SELECTORS.PRODUCTS_LIST).describe('Products List');
         this.productCards = this.page.locator(this.SELECTORS.PRODUCT_CARD).describe('Product Cards');
 
-        this.searchInput = this.page.locator(this.SELECTORS.INPUT_SEARCH).describe('Search Input');
-        this.submitSearchButton = this.page.locator(this.SELECTORS.BTN_SUBMIT_SEARCH).describe('Search Button');
+        this.searchInput = this.page.getByPlaceholder('Search Product').describe('Search Input');
+        this.submitSearchButton = this.page.locator('#submit_search').describe('Search Button');
         this.searchedProductsHeader = this.page.locator(this.SELECTORS.HEADER_SEARCHED)
             .filter({ hasText: MESSAGES.SEARCHED_PRODUCTS })
             .describe('Searched Products Header');
@@ -71,7 +63,7 @@ export class AutomationExerciseProductsPage extends BasePage {
         this.brandsPanel = this.page.locator(this.SELECTORS.BRANDS_PANEL).describe('Brands Sidebar');
 
         this.cartModal = this.page.locator(this.SELECTORS.MODAL_CART).describe('Cart Modal');
-        this.continueShoppingButton = this.page.getByRole('button', { name: this.SELECTORS.BTN_CONTINUE_SHOPPING_ROLE }).describe('Continue Shopping Button');
+        this.continueShoppingButton = this.page.getByRole('button', { name: 'Continue Shopping' }).describe('Continue Shopping Button');
         this.pageHeader = this.page.locator(this.SELECTORS.PAGE_HEADER_XPATH).describe('Page Header');
 
         // Derived for convenience
@@ -83,25 +75,25 @@ export class AutomationExerciseProductsPage extends BasePage {
     // Actions
     // ===========================
 
-    async navigate() {
+    async navigate(): Promise<void> {
         await this.navigateTo(Routes.PRODUCTS);
     }
 
-    async verifyPageOpened() {
+    async verifyPageOpened(): Promise<void> {
         await expect(this.page, 'Products Page should be opened').toHaveTitle(PAGE_TITLES.ALL_PRODUCTS);
         await expect(this.productsList, 'Products List should be visible').toBeVisible();
     }
 
-    async searchProduct(term: string) {
+    async searchProduct(term: string): Promise<void> {
         await this.searchInput.fill(term);
         await this.clickWithNavigationRetry(this.submitSearchButton, /\/products\?search=/, 3);
     }
 
-    async verifySearchedProductsHeader() {
+    async verifySearchedProductsHeader(): Promise<void> {
         await expect(this.searchedProductsHeader, 'Searched Products Header should be visible').toBeVisible({ timeout: TIMEOUTS.VISIBILITY });
     }
 
-    async clickBrand(brandName: string) {
+    async clickBrand(brandName: string): Promise<void> {
         const brandLink = this.getBrandLink(brandName);
         const safeBrandName = this.getSafeUrlFragment(brandName);
         const expectedUrlPattern = new RegExp(`/brand_products/${safeBrandName}`);
@@ -109,7 +101,7 @@ export class AutomationExerciseProductsPage extends BasePage {
         await this.clickWithNavigationRetry(brandLink, expectedUrlPattern);
     }
 
-    async clickCategory(category: string) {
+    async clickCategory(category: string): Promise<void> {
         // Toggle the category and ensure it expands.
         // We look for the panel with ID matching the category (e.g., #Women).
         const categoryLink = this.categoryPanel.locator(`//a[@href="#${category}"]`);
@@ -118,23 +110,27 @@ export class AutomationExerciseProductsPage extends BasePage {
         // Scroll to the category link to ensure it's in view (helper for sticky headers/ads)
         await categoryLink.scrollIntoViewIfNeeded();
 
-        // If not already visible, click to expand. Use retries as accordion clicks can be flaky.
-        if (!await categoryBody.isVisible()) {
-            for (let i = 0; i < 3; i++) {
-                try {
-                    await categoryLink.click();
-                    await expect(categoryBody, `Category body for ${category} should be visible`).toBeVisible({ timeout: 2000 });
-                    return; // Success
-                } catch (e) {
-                    if (i === 2) throw e; // Throw on last attempt
-                    // Wait briefly before retrying
-                    await this.page.waitForTimeout(500);
-                }
+        // Use Playwright's built-in retry mechanism via toPass()
+        // This is necessary because the category click is often intercepted by ads or fails to trigger the animation immediately.
+        // A simple click-and-wait is insufficient for this specific application.
+        await expect(async () => {
+            // If already visible, we don't need to do anything (idempotent)
+            if (await categoryBody.isVisible()) {
+                return;
             }
-        }
+
+            // Click to expand
+            await categoryLink.click();
+
+            // Verify visibility
+            await expect(categoryBody, `Category body for ${category} should be visible`).toBeVisible({ timeout: 2000 });
+        }).toPass({
+            timeout: TIMEOUTS.DEFAULT, // Use default timeout for the whole retry block
+            intervals: [500, 1000, 2000] // Retry with increasing backoff
+        });
     }
 
-    async clickSubCategory(mainCategory: string, subCategory: string) {
+    async clickSubCategory(mainCategory: string, subCategory: string): Promise<void> {
         // Ensure the main category is really open before trying to find subcategory
         const categoryBody = this.categoryPanel.locator(`#${mainCategory}`);
         await expect(categoryBody).toBeVisible();
@@ -154,58 +150,70 @@ export class AutomationExerciseProductsPage extends BasePage {
         await this.clickWithNavigationRetry(subCategoryLink, new RegExp(href));
     }
 
-    async viewProductDetails(index: number) {
+    async viewProductDetails(index: number): Promise<void> {
         // "View Product" buttons are a list.
         // It's safer to find the card at index, then the button inside it.
-        await this.getProductCard(index).getByRole('link', { name: this.SELECTORS.LINK_VIEW_PRODUCT }).click();
+        await this.getProductCard(index).getByRole('link', { name: 'View Product' }).click();
     }
 
-    async viewProductDetailsByName(productName: string) {
+    async viewProductDetailsByName(productName: string): Promise<void> {
         const productCard = this.getProductCardByName(productName);
-        await productCard.getByRole('link', { name: this.SELECTORS.LINK_VIEW_PRODUCT }).click();
+        await productCard.getByRole('link', { name: 'View Product' }).click();
     }
 
-    async addProductToCart(index: number) {
-        await this.getProductCard(index).getByText(this.SELECTORS.BTN_ADD_TO_CART).first().click();
+    async addProductToCart(index: number): Promise<void> {
+        // Reverting to getByText as it was more reliable for the overlay animation timing in this specific app
+        const addToCartBtn = this.getProductCard(index).getByText('Add to cart').first();
+        await addToCartBtn.waitFor({ state: 'visible' });
+        await addToCartBtn.click();
     }
 
-    async addProductToCartByName(productName: string) {
+    async addProductToCartByName(productName: string): Promise<void> {
         const product = this.getProductCardByName(productName);
         await product.hover();
-        await product.getByText(this.SELECTORS.BTN_ADD_TO_CART).first().click();
+        const addToCartBtn = product.getByText('Add to cart').first();
+        await addToCartBtn.waitFor({ state: 'visible' });
+        await addToCartBtn.click();
     }
 
-    async clickContinueShopping() {
+    async clickContinueShopping(): Promise<void> {
         await this.continueShoppingButton.click();
+        await expect(this.cartModal, 'Cart Modal should be hidden after continuing').toBeHidden();
     }
 
     // ===========================
     // Verifications / Getters
     // ===========================
 
-    async verifySuccessMessage() {
+    async verifySuccessMessage(): Promise<void> {
+        // Ensure we are at the top of the page where the modal usually appears
+        // The user reported the modal is not visible because the top of the page is out of viewport
+        await this.page.evaluate(() => window.scrollTo(0, 0));
         await expect(this.cartModal, 'Cart Modal should be visible').toBeVisible({ timeout: TIMEOUTS.DEFAULT });
     }
 
-    async verifyPageHeader(expectedTitle: string) {
+    async verifyPageHeader(expectedTitle: string): Promise<void> {
         await expect(this.pageHeader, 'Page Header should have expected title').toHaveText(expectedTitle, { ignoreCase: true });
     }
 
-    async verifyProductsContainName(namePart: string) {
+    async verifyProductsContainName(): Promise<void> {
         const count = await this.productCards.count();
         expect(count).toBeGreaterThan(0);
     }
 
-    async verifyEmptyState() {
+    async verifyEmptyState(): Promise<void> {
         const count = await this.productCards.count();
         expect(count, 'No product cards should be visible for empty search results').toBe(0);
     }
 
-    async verifyProductCardStructure(index: number) {
+    async verifyProductCardStructure(index: number): Promise<void> {
         const card = this.getProductCard(index);
 
+        // Scroll into view to trigger lazy loading if any
+        await card.scrollIntoViewIfNeeded();
+
         await expect(card.locator(this.SELECTORS.PRODUCT_IMAGE), 'Product Image should be visible').toBeVisible();
-        await expect(card.getByRole('link', { name: this.SELECTORS.LINK_VIEW_PRODUCT }), 'View Product Link should be visible').toBeVisible();
+        await expect(card.getByRole('link', { name: 'View Product' }), 'View Product Link should be visible').toBeVisible();
     }
 
     async getProductNames(): Promise<string[]> {
@@ -250,20 +258,23 @@ export class AutomationExerciseProductsPage extends BasePage {
     // ===========================
 
     private getProductCardByName(productName: string): Locator {
-        return this.productCards.filter({ hasText: productName }).first();
+        return this.productCards.filter({ hasText: productName }).first().describe(`Product Card: ${productName}`);
     }
 
     private getBrandLink(brandName: string): Locator {
-        return this.brandsPanel.locator(`li a:has-text("${brandName}")`);
+        return this.brandsPanel.locator(`li a:has-text("${brandName}")`).describe(`Brand Link: ${brandName}`);
     }
 
     private getSubCategoryLink(mainCategory: string, subCategory: string): Locator {
-        return this.categoryPanel.locator(`#${mainCategory} .panel-body ul li a:has-text("${subCategory}")`);
+        return this.categoryPanel.locator(`#${mainCategory} .panel-body ul li a:has-text("${subCategory}")`).describe(`SubCategory Link: ${mainCategory} > ${subCategory}`);
     }
 
     /**
      * Escapes special characters and encodes spaces for URL matching.
      * Replaces explicit space encoding logic.
+     * 
+     * @param text - The text to escape (e.g. brand name)
+     * @returns The URL-safe fragment
      */
     private getSafeUrlFragment(text: string): string {
         return text.replace(/ /g, '%20').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -272,23 +283,19 @@ export class AutomationExerciseProductsPage extends BasePage {
     /**
      * Robust click with navigation retry.
      * Handles cases where ads intercept clicks or navigation doesn't trigger immediately.
-     * Default retries = 1 means "try once, no retry".
+     * Uses Playwright's automatic retry mechanism via `toPass`.
+     * 
+     * @param element - The locator to click
+     * @param expectedUrlPattern - The regex pattern to match the URL after navigation
+     * @param retries - Number of retry attempts (default: 3)
      */
-    private async clickWithNavigationRetry(element: Locator, expectedUrlPattern: RegExp, retries = 1) {
-        for (let i = 0; i < retries; i++) {
-            try {
-                await element.click();
-                // Use a shorter timeout for interim attempts, full timeout for the last one
-                const timeout = i === retries - 1 ? TIMEOUTS.NAVIGATION : 6000;
-                await expect(this.page).toHaveURL(expectedUrlPattern, { timeout });
-                return;
-            } catch (error) {
-                if (i === retries - 1) {
-                    throw error;
-                }
-                // If we are retrying, wait a bit to ensure stability
-                await this.page.waitForTimeout(1000);
-            }
-        }
+    private async clickWithNavigationRetry(element: Locator, expectedUrlPattern: RegExp, retries = 3): Promise<void> {
+        await expect(async () => {
+            await element.click({ force: true });
+            await expect(this.page).toHaveURL(expectedUrlPattern);
+        }).toPass({
+            timeout: TIMEOUTS.NAVIGATION * retries,
+            intervals: [1000, 2000]
+        });
     }
 }

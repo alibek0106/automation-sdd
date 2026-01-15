@@ -8,6 +8,7 @@ export class AutomationExerciseCheckoutSteps {
 
     @step('Verify address details for user: {0.name}')
     async verifyAddressDetails(user: User): Promise<void> {
+        await this.checkoutPage.verifyPageLoaded();
         await this.checkoutPage.verifyDeliveryAddress(user);
         await this.checkoutPage.verifyBillingAddress(user);
     }

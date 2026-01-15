@@ -2,6 +2,11 @@ import playwright from 'eslint-plugin-playwright';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default [
     eslint.configs.recommended,
@@ -10,9 +15,9 @@ export default [
     {
         files: ['**/*.ts'],
         languageOptions: {
-            parseOptions: {
+            parserOptions: {
                 projectService: true,
-                tsconfigRootDir: import.meta.dirname,
+                tsconfigRootDir: __dirname,
             },
             globals: globals.node,
         },
@@ -30,7 +35,7 @@ export default [
             ...playwright.configs['flat/recommended'].rules,
             'playwright/no-skipped-test': 'warn',
             'playwright/no-page-pause': 'error',
-            'playwright/no-force': 'warn',
+            'playwright/no-force-option': 'warn',
         },
         settings: {
             playwright: {

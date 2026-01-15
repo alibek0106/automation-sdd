@@ -11,8 +11,6 @@ export class AutomationExerciseCheckoutPage extends BasePage {
     private readonly SELECTORS = {
         ADDRESS_DELIVERY: '#address_delivery',
         ADDRESS_BILLING: '#address_invoice',
-        INPUT_COMMENT: 'textarea[name="message"]',
-        BTN_PLACE_ORDER: 'a[href="/payment"]',
         TABLE_CART_ROWS: '#cart_info_table tbody tr'
     };
 
@@ -29,8 +27,8 @@ export class AutomationExerciseCheckoutPage extends BasePage {
         super(page, 'CheckoutPage');
         this.deliveryAddress = this.page.locator(this.SELECTORS.ADDRESS_DELIVERY).describe('Delivery Address');
         this.billingAddress = this.page.locator(this.SELECTORS.ADDRESS_BILLING).describe('Billing Address');
-        this.commentArea = this.page.locator(this.SELECTORS.INPUT_COMMENT).describe('Comment Area');
-        this.placeOrderButton = this.page.locator(this.SELECTORS.BTN_PLACE_ORDER).describe('Place Order Button');
+        this.commentArea = this.page.locator('textarea[name="message"]').describe('Comment Area');
+        this.placeOrderButton = this.page.getByRole('link', { name: 'Place Order' }).describe('Place Order Button');
         this.cartItems = this.page.locator(this.SELECTORS.TABLE_CART_ROWS).describe('Cart Items');
     }
 

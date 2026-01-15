@@ -1,5 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
-import { MESSSAGES } from '../constants/Messages';
+import { MESSAGES } from '../constants/Messages';
 import { TIMEOUTS } from '../utils/Constants';
 import { BasePage } from './BasePage';
 
@@ -11,8 +11,6 @@ export class AutomationExerciseCartPage extends BasePage {
     private readonly SELECTORS = {
         TABLE_CART: '#cart_info_table',
         TABLE_ROWS: '#cart_info_table tbody tr',
-        MSG_EMPTY_CART: '#empty_cart',
-        BTN_PROCEED_CHECKOUT: 'text=Proceed To Checkout',
 
         // Row specific selectors (relative to row)
         BTN_DELETE: '.cart_quantity_delete',
@@ -34,7 +32,7 @@ export class AutomationExerciseCartPage extends BasePage {
         super(page, 'CartPage');
         this.cartTable = this.page.locator(this.SELECTORS.TABLE_CART).describe('Cart Table');
         this.cartRows = this.page.locator(this.SELECTORS.TABLE_ROWS).describe('Cart Rows');
-        this.emptyCartMessage = this.page.locator(this.SELECTORS.MSG_EMPTY_CART).describe('Empty Cart Message');
+        this.emptyCartMessage = this.page.getByText('Cart is empty!').describe('Empty Cart Message');
         this.proceedToCheckoutButton = this.page.getByText('Proceed To Checkout').describe('Proceed To Checkout Button');
     }
 
@@ -42,7 +40,7 @@ export class AutomationExerciseCartPage extends BasePage {
     // Actions
     // ===========================
 
-    async removeProduct(productName: string) {
+    async removeProduct(productName: string): Promise<void> {
         const row = this.cartRows.filter({ hasText: productName });
 
         // Retry mechanism: Click delete and verify it disappears.
@@ -74,46 +72,47 @@ export class AutomationExerciseCartPage extends BasePage {
         });
     }
 
-    async proceedToCheckout() {
+    async proceedToCheckout(): Promise<void> {
         await this.proceedToCheckoutButton.click();
+        await expect(this.page).toHaveURL(/\/checkout/);
     }
 
     // ===========================
     // Verifications / Getters
     // ===========================
 
-    async verifyCartEmpty() {
-        await expect(this.emptyCartMessage, 'Empty cart message should be as expected').toContainText(MESSSAGES.CART_EMPTY);
+    async verifyCartEmpty(): Promise<void> {
+        await expect(this.emptyCartMessage, 'Empty cart message should be as expected').toContainText(MESSAGES.CART_EMPTY);
     }
 
-    async verifyCartVisible() {
+    async verifyCartVisible(): Promise<void> {
         await expect(this.cartTable, 'Cart table should be visible').toBeVisible();
     }
 
-    async verifyProductQuantity(productName: string, quantity: string) {
+    async verifyProductQuantity(productName: string, quantity: string): Promise<void> {
         // Finding the row that contains the product name
         const row = this.cartRows.filter({ hasText: productName });
         const quantityButton = row.locator(this.SELECTORS.BTN_QUANTITY);
         await expect(quantityButton, 'Product quantity should match').toHaveText(quantity);
     }
 
-    async verifyProductPrice(productName: string, price: string) {
+    async verifyProductPrice(productName: string, price: string): Promise<void> {
         const row = this.cartRows.filter({ hasText: productName });
         const priceElement = row.locator(this.SELECTORS.TEXT_PRICE);
         await expect(priceElement, 'Product price should match').toHaveText(price);
     }
 
-    async verifyTotalPrice(productName: string, total: string) {
+    async verifyTotalPrice(productName: string, total: string): Promise<void> {
         const row = this.cartRows.filter({ hasText: productName });
         const totalElement = row.locator(this.SELECTORS.TEXT_TOTAL);
         await expect(totalElement, 'Total price should match').toHaveText(total);
     }
 
-    async getCartProducts() {
+    async getCartProducts(): Promise<Locator[]> {
         return this.cartRows.all();
     }
 
-    async verifyProductRemoved(productName: string) {
+    async verifyProductRemoved(productName: string): Promise<void> {
         await expect(this.cartRows.filter({ hasText: productName }), 'Product should be removed').not.toBeVisible();
     }
 
@@ -121,7 +120,7 @@ export class AutomationExerciseCartPage extends BasePage {
         const rows = await this.cartRows.all();
         const details = [];
         for (const row of rows) {
-            const name = await row.locator(this.SELECTORS.LINK_DESCRIPTION).innerText();
+            const name = await row.getByRole('heading', { level: 4 }).getByRole('link').innerText();
             const price = await row.locator(this.SELECTORS.TEXT_PRICE).innerText();
             const quantity = await row.locator(this.SELECTORS.BTN_QUANTITY).innerText();
             const total = await row.locator(this.SELECTORS.TEXT_TOTAL).innerText();

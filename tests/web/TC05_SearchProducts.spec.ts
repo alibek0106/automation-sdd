@@ -1,4 +1,6 @@
+/* eslint-disable playwright/expect-expect */
 import { test } from '@fixtures/index';
+import { PRODUCT_SEARCH_TEST_DATA } from '../testData/ProductSearchTestData';
 
 /**
  * TC05: Product Search Functionality
@@ -15,13 +17,7 @@ test.describe('Product Search Functionality', () => {
         await automationExerciseNavigationSteps.clickProducts();
     });
 
-    const searchTerms = [
-        { term: 'Jeans', description: 'Standard search' },
-        { term: 'T-Shirt', description: 'Standard search with punctuation' },
-        { term: 'Winter Top', description: 'Specific keyword' },
-    ];
-
-    for (const { term, description } of searchTerms) {
+    for (const { term, description } of PRODUCT_SEARCH_TEST_DATA.VALID_SEARCH_TERMS) {
         test(`Search for valid products: ${term} (${description})`, async ({ automationExerciseProductsSteps }) => {
             await automationExerciseProductsSteps.verifyProductsPageVisible();
             await automationExerciseProductsSteps.searchForProduct(term);
@@ -31,7 +27,7 @@ test.describe('Product Search Functionality', () => {
     }
 
     test('Navigate to product details from search results', async ({ automationExerciseProductsSteps, automationExerciseProductDetailSteps }) => {
-        const term = 'Jeans'; // Changed from 'Dress' to 'Jeans' for stability
+        const term = PRODUCT_SEARCH_TEST_DATA.STABLE_PRODUCT_TERM;
 
         await automationExerciseProductsSteps.verifyProductsPageVisible();
         await automationExerciseProductsSteps.searchForProduct(term);
@@ -43,7 +39,7 @@ test.describe('Product Search Functionality', () => {
     });
 
     test('Search for non-existent product', async ({ automationExerciseProductsSteps }) => {
-        const term = 'XYZ123NOTFOUND';
+        const term = PRODUCT_SEARCH_TEST_DATA.NON_EXISTENT_PRODUCT;
 
         await automationExerciseProductsSteps.verifyProductsPageVisible();
         await automationExerciseProductsSteps.searchForProduct(term);

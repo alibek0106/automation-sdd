@@ -3,15 +3,6 @@ import { BasePage } from './BasePage';
 import { MESSAGES } from '../utils/Constants';
 
 export class AutomationExerciseOrderConfirmationPage extends BasePage {
-
-    // ===========================
-    // Constants & Selectors
-    // ===========================
-    private readonly SELECTORS = {
-        BTN_DOWNLOAD_INVOICE: 'a.check_out',
-        BTN_CONTINUE: '[data-qa="continue-button"]'
-    };
-
     // ===========================
     // Locators
     // ===========================
@@ -26,7 +17,7 @@ export class AutomationExerciseOrderConfirmationPage extends BasePage {
         this.orderPlacedMessage = page.getByText(MESSAGES.ORDER_PLACED);
 
         this.downloadInvoiceButton = this.page.getByRole('link', { name: 'Download Invoice' }).describe('Download Invoice Button');
-        this.continueButton = this.page.locator(this.SELECTORS.BTN_CONTINUE).describe('Continue Button');
+        this.continueButton = this.page.getByRole('link', { name: 'Continue' }).describe('Continue Button');
     }
 
     // ===========================

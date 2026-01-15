@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "ES2019",
-        "module": "commonjs",
+        "module": "esnext",
         "lib": [
             "esnext",
             "dom",
@@ -11,11 +11,15 @@
             "node"
         ],
         "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "resolveJsonModule": true,
         "moduleResolution": "node",
-        "experimentalDecorators": false,
+        "experimentalDecorators": true,
         "baseUrl": ".",
         "paths": {
             "@fixtures/*": [

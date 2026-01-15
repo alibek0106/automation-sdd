@@ -8,27 +8,27 @@ export class AutomationExerciseProductsSteps {
     constructor(private productsPage: AutomationExerciseProductsPage) { }
 
     @step('Verify Products page is visible')
-    async verifyProductsPageVisible() {
+    async verifyProductsPageVisible(): Promise<void> {
         await this.productsPage.verifyPageOpened();
     }
 
     @step('View details of the first product')
-    async viewFirstProductDetails() {
+    async viewFirstProductDetails(): Promise<void> {
         await this.productsPage.viewProductDetails(0);
     }
 
     @step('View details of product: {0}')
-    async viewProductDetails(productName: string) {
+    async viewProductDetails(productName: string): Promise<void> {
         await this.productsPage.viewProductDetailsByName(productName);
     }
 
     @step('Navigate to Products page')
-    async navigateToProductsPage() {
+    async navigateToProductsPage(): Promise<void> {
         await this.productsPage.navigate();
     }
 
     @step('Add product "{0}" to cart')
-    async addProductToCart(product: string | number) {
+    async addProductToCart(product: string | number): Promise<void> {
         if (typeof product === 'number') {
             await this.productsPage.addProductToCart(product);
         } else {
@@ -37,85 +37,84 @@ export class AutomationExerciseProductsSteps {
     }
 
     @step('Click "Continue Shopping"')
-    async clickContinueShopping() {
+    async clickContinueShopping(): Promise<void> {
         await this.productsPage.clickContinueShopping();
     }
 
     @step('Verify success message is visible')
-    async verifySuccessMessage() {
+    async verifySuccessMessage(): Promise<void> {
         await this.productsPage.verifySuccessMessage();
     }
 
     @step('Search for product: {0}')
-    async searchForProduct(term: string) {
+    async searchForProduct(term: string): Promise<void> {
         await this.productsPage.searchProduct(term);
     }
 
     @step('Verify "SEARCHED PRODUCTS" header is visible')
-    async verifySearchedProductsHeader() {
+    async verifySearchedProductsHeader(): Promise<void> {
         await this.productsPage.verifySearchedProductsHeader();
     }
 
+    /**
+     * Verifies that all displayed search results contain the search term.
+     * Normalizes both the product names and search term by removing special characters and converting to lowercase.
+     * 
+     * @param term - The search term to verify against result names
+     */
     @step('Verify all search results contain: {0}')
-    async verifySearchResultsContain(term: string) {
+    async verifySearchResultsContain(term: string): Promise<void> {
         const names = await this.productsPage.getProductNames();
-        if (names.length === 0) {
-            throw new Error(`${ERROR_MESSAGES.NO_PRODUCTS_FOUND}: ${term}`);
-        }
+
+        expect(names.length, `${ERROR_MESSAGES.NO_PRODUCTS_FOUND}: ${term}`).toBeGreaterThan(0);
 
         const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
         const normalizedTerm = normalize(term);
 
         for (const name of names) {
             const normalizedName = normalize(name);
-            if (!normalizedName.includes(normalizedTerm)) {
-                throw new Error(`${ERROR_MESSAGES.PRODUCT_VERIFICATION_FAILED}: Product "${name}" (normalized: ${normalizedName}) does not contain search term "${term}" (normalized: ${normalizedTerm})`);
-            }
+            expect(normalizedName, `${ERROR_MESSAGES.PRODUCT_VERIFICATION_FAILED}: Product "${name}" should contain term "${term}"`).toContain(normalizedTerm);
         }
     }
 
     @step('Verify no products are displayed')
-    async verifyNoProductsDisplayed() {
+    async verifyNoProductsDisplayed(): Promise<void> {
         const names = await this.productsPage.getProductNames();
-        if (names.length > 0) {
-            throw new Error(`${ERROR_MESSAGES.UNEXPECTED_PRODUCTS_FOUND}: ${names.join(', ')}`);
-        }
+        expect(names.length, `${ERROR_MESSAGES.UNEXPECTED_PRODUCTS_FOUND}: ${names.join(', ')}`).toBe(0);
     }
 
     @step('Filter by Category: {0} > {1}')
-    async filterByCategory(mainCategory: string, subCategory: string) {
+    async filterByCategory(mainCategory: string, subCategory: string): Promise<void> {
         await this.productsPage.clickCategory(mainCategory);
         await this.productsPage.clickSubCategory(mainCategory, subCategory);
     }
 
     @step('Filter by Brand: {0}')
-    async filterByBrand(brandName: string) {
+    async filterByBrand(brandName: string): Promise<void> {
         await this.productsPage.clickBrand(brandName);
     }
 
     @step('Verify page header is "{0}"')
-    async verifyPageHeader(expectedTitle: string) {
+    async verifyPageHeader(expectedTitle: string): Promise<void> {
         await this.productsPage.verifyPageHeader(expectedTitle);
     }
 
     @step('Verify displayed product count is greater than {0}')
-    async verifyProductCountGreaterThan(minCount: number) {
+    async verifyProductCountGreaterThan(minCount: number): Promise<void> {
         const count = await this.productsPage.getProductCount();
-        if (count <= minCount) {
-            throw new Error(`${ERROR_MESSAGES.PRODUCT_COUNT_MISMATCH} ${minCount} products, but found ${count}`);
-        }
+        expect(count, `${ERROR_MESSAGES.PRODUCT_COUNT_MISMATCH} Expected > ${minCount} products, but found ${count}`).toBeGreaterThan(minCount);
     }
 
     // ==================== Hybrid API Validation Methods ====================
 
     @step('Verify UI product count matches API count')
-    async verifyProductCountMatchesApi(apiProducts: Product[]) {
+    async verifyProductCountMatchesApi(apiProducts: Product[]): Promise<void> {
         const apiCount = apiProducts.length;
         await expect(this.productsPage.getProductCards(), `UI should display ${apiCount} products`).toHaveCount(apiCount);
     }
 
     @step('Verify UI product names match API response')
-    async verifyProductNamesMatchApi(apiProducts: Product[]) {
+    async verifyProductNamesMatchApi(apiProducts: Product[]): Promise<void> {
         // Ensure products are loaded first
         await this.verifyProductCountMatchesApi(apiProducts);
 
@@ -134,7 +133,7 @@ export class AutomationExerciseProductsSteps {
     }
 
     @step('Verify UI product prices match API response')
-    async verifyProductPricesMatchApi(apiProducts: Product[]) {
+    async verifyProductPricesMatchApi(apiProducts: Product[]): Promise<void> {
         // Ensure products are loaded first
         await this.verifyProductCountMatchesApi(apiProducts);
 
@@ -156,12 +155,12 @@ export class AutomationExerciseProductsSteps {
     }
 
     @step('Verify product card structure at index {0}')
-    async verifyProductCardStructureAt(index: number) {
+    async verifyProductCardStructureAt(index: number): Promise<void> {
         await this.productsPage.verifyProductCardStructure(index);
     }
 
     @step('Verify all product cards have required structure')
-    async verifyAllProductCardsStructure() {
+    async verifyAllProductCardsStructure(): Promise<void> {
         const count = await this.productsPage.getProductCount();
 
         for (let i = 0; i < count; i++) {
@@ -171,7 +170,7 @@ export class AutomationExerciseProductsSteps {
     }
 
     @step('Verify empty search results are displayed')
-    async verifyEmptySearchResults() {
+    async verifyEmptySearchResults(): Promise<void> {
         await this.productsPage.verifyEmptyState();
     }
 }

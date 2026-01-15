@@ -1,4 +1,4 @@
-import { test as base, expect as baseExpect } from '@playwright/test';
+import { test as base, expect as baseExpect, Route } from '@playwright/test';
 import { PagesFixture, pagesFixture } from './pages.fixture';
 import { StepsFixture, stepsFixture } from './steps.fixture';
 import { ApiFixture, apiFixture } from './api.fixture';
@@ -12,12 +12,12 @@ export const test = base.extend<TestFixtures>({
     ...apiFixture,
     page: async ({ page }, use) => {
         // Global Ad Blocking
-        await page.route('**/*google_vignette*', (route: any) => route.abort());
-        await page.route('**/adsbygoogle.js', (route: any) => route.abort());
-        await page.route('**/*googlesyndication.com/**', (route: any) => route.abort());
-        await page.route('**/*doubleclick.net/**', (route: any) => route.abort());
-        await page.route('**/*amazon-adsystem.com/**', (route: any) => route.abort());
-        await page.route('**/*gpt.js', (route: any) => route.abort());
+        await page.route('**/*google_vignette*', (route: Route) => route.abort());
+        await page.route('**/adsbygoogle.js', (route: Route) => route.abort());
+        await page.route('**/*googlesyndication.com/**', (route: Route) => route.abort());
+        await page.route('**/*doubleclick.net/**', (route: Route) => route.abort());
+        await page.route('**/*amazon-adsystem.com/**', (route: Route) => route.abort());
+        await page.route('**/*gpt.js', (route: Route) => route.abort());
 
         await use(page);
     },
@@ -26,6 +26,7 @@ export const test = base.extend<TestFixtures>({
 export const expect = baseExpect.extend(customMatchers);
 
 declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace PlaywrightTest {
         interface Matchers<R> {
             toHaveStatusCode(expectedCode: number): Promise<R>;

@@ -14,8 +14,7 @@ export class BasePage {
      * Navigates to a specific URL and waits for load state
      */
     async navigateTo(url: string) {
-        await this.page.goto(url);
-        await this.page.waitForLoadState('domcontentloaded');
+        await this.page.goto(url, { waitUntil: 'domcontentloaded', timeout: TIMEOUTS.NAVIGATION });
     }
 
     /**

@@ -11,14 +11,8 @@ export class AutomationExerciseProductDetailPage extends BasePage {
     private readonly SHORT_POLLING_TIMEOUT = 2000;
 
     private readonly SELECTORS = {
-        INPUT_QUANTITY: '#quantity',
-        BTN_ADD_TO_CART: 'button.cart',
         CONTAINER_PRODUCT_INFO: '.product-information',
-        TEXT_PRODUCT_NAME: '.product-information h2',
-        TEXT_PRODUCT_PRICE: '.product-information span span',
-        // Modal elements
-        BTN_CONTINUE_SHOPPING: '.modal-footer button',
-        LINK_VIEW_CART: '.modal-body a[href="/view_cart"]'
+        TEXT_PRODUCT_PRICE: '.product-information span span'
     };
 
     // ===========================
@@ -36,28 +30,29 @@ export class AutomationExerciseProductDetailPage extends BasePage {
         super(page, 'ProductDetailPage');
 
         // Product Interaction
-        this.quantityInput = this.page.locator(this.SELECTORS.INPUT_QUANTITY).describe('Quantity Input');
+        this.quantityInput = this.page.locator('#quantity').describe('Quantity Input');
         this.addToCartButton = this.page.getByRole('button', { name: 'Add to cart' }).describe('Add To Cart Button');
 
         // Product Info
         this.productInformation = this.page.locator(this.SELECTORS.CONTAINER_PRODUCT_INFO).describe('Product Information');
-        this.productName = this.page.locator(this.SELECTORS.TEXT_PRODUCT_NAME).describe('Product Name');
+        // Scoped and role-based for Heading
+        this.productName = this.productInformation.getByRole('heading', { level: 2 }).describe('Product Name');
         this.productPrice = this.page.locator(this.SELECTORS.TEXT_PRODUCT_PRICE).describe('Product Price');
 
         // Modal
-        this.continueShoppingButton = this.page.locator(this.SELECTORS.BTN_CONTINUE_SHOPPING).describe('Continue Shopping Button');
-        this.viewCartLink = this.page.locator(this.SELECTORS.LINK_VIEW_CART).describe('View Cart Link');
+        this.continueShoppingButton = this.page.getByRole('button', { name: 'Continue Shopping' }).describe('Continue Shopping Button');
+        this.viewCartLink = this.page.getByRole('link', { name: 'View Cart' }).describe('View Cart Link');
     }
 
     // ===========================
     // Actions
     // ===========================
 
-    async setQuantity(quantity: string) {
+    async setQuantity(quantity: string): Promise<void> {
         await this.quantityInput.fill(quantity);
     }
 
-    async addToCart() {
+    async addToCart(): Promise<void> {
         // Retry mechanism: Click add to cart and wait for modal to appear.
         // Handles cases where ads intercept the click.
         await expect(async () => {
@@ -69,11 +64,11 @@ export class AutomationExerciseProductDetailPage extends BasePage {
         });
     }
 
-    async clickContinueShopping() {
+    async clickContinueShopping(): Promise<void> {
         await this.continueShoppingButton.click();
     }
 
-    async clickViewCart() {
+    async clickViewCart(): Promise<void> {
         await this.viewCartLink.click();
     }
 
@@ -81,7 +76,7 @@ export class AutomationExerciseProductDetailPage extends BasePage {
     // Verifications / Getters
     // ===========================
 
-    async verifyProductDetailVisible() {
+    async verifyProductDetailVisible(): Promise<void> {
         await expect(this.productInformation, 'Product Information should be visible').toBeVisible();
     }
 

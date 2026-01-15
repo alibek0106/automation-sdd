@@ -1,3 +1,4 @@
+/* eslint-disable playwright/expect-expect */
 import { test } from '@fixtures/index';
 import { DataFactory } from '@utils/DataFactory';
 import { PRODUCTS, PRODUCT_DETAILS } from '@constants/Products';
@@ -120,7 +121,6 @@ test.describe('TC08: Cart Quantity Update', () => {
     test('Scenario: Handle invalid quantity updates', async ({
         automationExerciseProductsSteps,
         automationExerciseProductDetailSteps,
-        automationExerciseNavigationSteps,
         automationExerciseCartSteps
     }) => {
         const productName = PRODUCTS.BLUE_TOP;

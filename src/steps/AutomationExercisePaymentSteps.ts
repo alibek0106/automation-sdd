@@ -1,4 +1,3 @@
-import { Page, expect } from '@playwright/test';
 import { AutomationExercisePaymentPage } from '../pages/AutomationExercisePaymentPage';
 import { AutomationExerciseOrderConfirmationPage } from '../pages/AutomationExerciseOrderConfirmationPage';
 import { step } from '../utils/Decorators';

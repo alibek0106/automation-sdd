@@ -5,42 +5,42 @@ export class AutomationExerciseNavigationSteps {
     constructor(private navigationMenu: AutomationExerciseNavigationMenu) { }
 
     @step('Click Signup/Login link')
-    async clickSignupLogin() {
+    async clickSignupLogin(): Promise<void> {
         await this.navigationMenu.clickSignupLogin();
     }
 
     @step('Click Delete Account link')
-    async clickDeleteAccount() {
+    async clickDeleteAccount(): Promise<void> {
         await this.navigationMenu.clickDeleteAccount();
     }
 
     @step('Click Logout link')
-    async clickLogout() {
+    async clickLogout(): Promise<void> {
         await this.navigationMenu.clickLogout();
     }
 
     @step('Verify user is logged in as {0}')
-    async verifyUserLoggedIn(username: string) {
+    async verifyUserLoggedIn(username: string): Promise<void> {
         await this.navigationMenu.verifyUserLoggedIn(username);
     }
 
     @step('Verify user is not logged in')
-    async verifyUserNotLoggedIn() {
+    async verifyUserNotLoggedIn(): Promise<void> {
         await this.navigationMenu.verifyUserNotLoggedIn();
     }
 
     @step('Click Home link')
-    async clickHome() {
+    async clickHome(): Promise<void> {
         await this.navigationMenu.clickHome();
     }
 
     @step('Click Products link')
-    async clickProducts() {
+    async clickProducts(): Promise<void> {
         await this.navigationMenu.clickProducts();
     }
 
     @step('Click Cart link')
-    async clickCart() {
+    async clickCart(): Promise<void> {
         await this.navigationMenu.clickCart();
     }
 }

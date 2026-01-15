@@ -1,3 +1,4 @@
+/* eslint-disable playwright/expect-expect */
 import { test } from '@fixtures/index';
 import { DataFactory, User } from '@utils/DataFactory';
 import { AutomationExerciseApi } from '@api/AutomationExerciseApi';
@@ -44,8 +45,11 @@ test.describe('End-to-End Purchase Flow', () => {
         // 2-3. Product Selection
         await automationExerciseNavigationSteps.clickProducts();
         await automationExerciseProductsSteps.addProductToCart(PRODUCTS.BLUE_TOP);
+        await automationExerciseProductsSteps.verifySuccessMessage();
         await automationExerciseProductsSteps.clickContinueShopping();
+
         await automationExerciseProductsSteps.addProductToCart(PRODUCTS.MEN_TSHIRT);
+        await automationExerciseProductsSteps.verifySuccessMessage();
         await automationExerciseProductsSteps.clickContinueShopping();
 
         // 4-5. Cart Verification

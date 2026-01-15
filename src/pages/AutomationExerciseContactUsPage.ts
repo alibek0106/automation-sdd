@@ -3,22 +3,6 @@ import { BasePage } from './BasePage';
 import { Routes } from '../constants/Routes';
 
 export class AutomationExerciseContactUsPage extends BasePage {
-
-    // ===========================
-    // Constants & Selectors
-    // ===========================
-    private readonly SELECTORS = {
-        HEADING: 'h2.title:has-text("Get In Touch")',
-        INPUT_NAME: '[data-qa="name"]',
-        INPUT_EMAIL: '[data-qa="email"]',
-        INPUT_SUBJECT: '[data-qa="subject"]',
-        INPUT_MESSAGE: '[data-qa="message"]',
-        INPUT_FILE_UPLOAD: 'input[name="upload_file"]',
-        BTN_SUBMIT: '[data-qa="submit-button"]',
-        MSG_SUCCESS: '.status.alert-success',
-        BTN_HOME: '.btn-success' // Still using specific class, but isolated here. If verification fails, we can refine to '.btn-success >> text=Home'
-    };
-
     // ===========================
     // Locators
     // ===========================
@@ -35,43 +19,43 @@ export class AutomationExerciseContactUsPage extends BasePage {
     constructor(page: Page) {
         super(page, 'ContactUsPage');
 
-        this.heading = this.page.locator(this.SELECTORS.HEADING).describe('Contact Us Heading');
-        this.nameInput = this.page.locator(this.SELECTORS.INPUT_NAME).describe('Contact Name Input');
-        this.emailInput = this.page.locator(this.SELECTORS.INPUT_EMAIL).describe('Contact Email Input');
-        this.subjectInput = this.page.locator(this.SELECTORS.INPUT_SUBJECT).describe('Contact Subject Input');
-        this.messageInput = this.page.locator(this.SELECTORS.INPUT_MESSAGE).describe('Contact Message Input');
-        this.uploadFileInput = this.page.locator(this.SELECTORS.INPUT_FILE_UPLOAD).describe('Upload File Input');
-        this.submitButton = this.page.locator(this.SELECTORS.BTN_SUBMIT).describe('Submit Button');
-        this.successMessage = this.page.locator(this.SELECTORS.MSG_SUCCESS).describe('Success Message');
+        this.heading = this.page.getByRole('heading', { name: 'Get In Touch' }).describe('Contact Us Heading');
+        this.nameInput = this.page.getByPlaceholder('Name').describe('Contact Name Input');
+        this.emailInput = this.page.getByPlaceholder('Email', { exact: true }).describe('Contact Email Input');
+        this.subjectInput = this.page.getByPlaceholder('Subject').describe('Contact Subject Input');
+        this.messageInput = this.page.getByPlaceholder('Your Message Here').describe('Contact Message Input');
+        this.uploadFileInput = this.page.locator('input[name="upload_file"]').describe('Upload File Input');
+        this.submitButton = this.page.getByRole('button', { name: 'Submit' }).describe('Submit Button');
+        this.successMessage = this.page.locator('.status.alert-success').describe('Success Message'); // Keep class for status message
 
-        // Refined locator to ensure we click the actual "Home" button if multiple success buttons appear
-        this.homeButton = this.page.locator(this.SELECTORS.BTN_HOME).filter({ hasText: 'Home' }).describe('Home Button');
+        // Refined locator to target the Home button with specific class and text
+        this.homeButton = this.page.locator('.btn-success').filter({ hasText: 'Home' }).describe('Home Button');
     }
 
     // ===========================
     // Actions
     // ===========================
 
-    async navigate() {
+    async navigate(): Promise<void> {
         await this.navigateTo(Routes.CONTACT_US);
     }
 
-    async verifyPageOpened() {
+    async verifyPageOpened(): Promise<void> {
         await expect(this.heading, 'Contact Us page should be opened').toBeVisible();
     }
 
-    async fillContactForm(name: string, email: string, subject: string, message: string) {
+    async fillContactForm(name: string, email: string, subject: string, message: string): Promise<void> {
         await this.nameInput.fill(name);
         await this.emailInput.fill(email);
         await this.subjectInput.fill(subject);
         await this.messageInput.fill(message);
     }
 
-    async uploadFile(filePath: string) {
+    async uploadFile(filePath: string): Promise<void> {
         await this.uploadFileInput.setInputFiles(filePath);
     }
 
-    async submitForm() {
+    async submitForm(): Promise<void> {
         // Handle potential confirmation dialog
         this.page.once('dialog', async dialog => {
             await dialog.accept();
@@ -79,12 +63,12 @@ export class AutomationExerciseContactUsPage extends BasePage {
         await this.submitButton.click();
     }
 
-    async verifySuccessMessage(text: string) {
+    async verifySuccessMessage(text: string): Promise<void> {
         await expect(this.successMessage, 'Success message should be visible').toBeVisible();
         await expect(this.successMessage, 'Success message should have expected text').toHaveText(text);
     }
 
-    async clickHome() {
+    async clickHome(): Promise<void> {
         await this.homeButton.click();
     }
 

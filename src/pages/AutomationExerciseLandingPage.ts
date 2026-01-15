@@ -27,11 +27,11 @@ export class AutomationExerciseLandingPage extends BasePage {
     // Actions
     // ===========================
 
-    async navigate() {
+    async navigate(): Promise<void> {
         await this.navigateTo(Routes.BASE_URL);
     }
 
-    async verifyPageOpened() {
+    async verifyPageOpened(): Promise<void> {
         await expect(this.page, 'Landing page should be opened').toHaveTitle(Routes.TITLE);
         // Robust check: Ensure key page elements are visible
         await expect(this.logo, 'Site Logo should be visible').toBeVisible();

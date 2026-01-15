@@ -9,29 +9,29 @@ export class AutomationExerciseSignupSteps {
     ) { }
 
     @step('Verify Account Information page is opened')
-    async verifyAccountInfoPageOpened() {
+    async verifyAccountInfoPageOpened(): Promise<void> {
         await this.signupPage.verifyAccountInfoPageOpened();
     }
 
     @step('Fill account details')
-    async fillAccountDetails(details: { title: 'Mr.' | 'Mrs.', password: string, day: string, month: string, year: string }) {
+    async fillAccountDetails(details: { title: 'Mr.' | 'Mrs.', password: string, day: string, month: string, year: string }): Promise<void> {
         await this.signupPage.selectTitle(details.title);
         await this.signupPage.enterPassword(details.password);
         await this.signupPage.selectDateOfBirth(details.day, details.month, details.year);
     }
 
     @step('Select newsletter')
-    async selectNewsletter() {
+    async selectNewsletter(): Promise<void> {
         await this.signupPage.checkNewsletter();
     }
 
     @step('Select special offers')
-    async selectSpecialOffers() {
+    async selectSpecialOffers(): Promise<void> {
         await this.signupPage.checkSpecialOffers();
     }
 
     @step('Fill address info')
-    async fillAddressInfo(info: { firstName: string, lastName: string, company: string, address: string, address2: string, country: string, state: string, city: string, zipcode: string, mobileNumber: string }) {
+    async fillAddressInfo(info: { firstName: string, lastName: string, company: string, address: string, address2: string, country: string, state: string, city: string, zipcode: string, mobileNumber: string }): Promise<void> {
         await this.signupPage.enterFirstName(info.firstName);
         await this.signupPage.enterLastName(info.lastName);
         await this.signupPage.enterCompany(info.company);
@@ -45,17 +45,17 @@ export class AutomationExerciseSignupSteps {
     }
 
     @step('Click Create Account button')
-    async clickCreateAccount() {
+    async clickCreateAccount(): Promise<void> {
         await this.signupPage.clickCreateAccount();
     }
 
     @step('Verify "ACCOUNT CREATED!" message')
-    async verifyAccountCreated() {
+    async verifyAccountCreated(): Promise<void> {
         await this.accountCreatedPage.verifyAccountCreatedMessage();
     }
 
     @step('Click Continue button')
-    async clickContinue() {
+    async clickContinue(): Promise<void> {
         await this.accountCreatedPage.clickContinue();
     }
 }
